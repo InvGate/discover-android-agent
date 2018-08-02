@@ -28,4 +28,8 @@ dependencies {
     implementation 'org.flyve:inventory:0.8.6'
     implementation 'com.squareup.retrofit2:retrofit:2.4.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.4.0'
+
+    implementation 'com.google.android.gms:play-services-base:15.0.1'
+    implementation 'com.google.android.gms:play-services-gcm:15.0.1'
+
 }
