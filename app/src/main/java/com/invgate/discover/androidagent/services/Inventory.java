@@ -1,6 +1,5 @@
 package com.invgate.discover.androidagent.services;
 
-import android.content.Context;
 import android.util.Log;
 
 import java.io.IOException;
@@ -14,8 +13,8 @@ public class Inventory {
     public com.invgate.discover.androidagent.resources.Inventory inventory;
 
 
-    public Inventory(Context context) {
-        inventory = Api.Instance(context)
+    public Inventory() {
+        inventory = Api.Instance()
                        .create(com.invgate.discover.androidagent.resources.Inventory.class);
     }
 
@@ -30,7 +29,12 @@ public class Inventory {
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 try {
                     ResponseBody body=response.body();
-                    Log.d("Inventory Response", body.string());
+                    if (body != null) {
+                        Log.d("Inventory Response", body.string());
+
+                        //TODO compare the interval response with the stored inverval and re-schedule
+
+                    }
                 } catch (IOException ex) {
                     Log.e("Inventory Response Err", ex.getMessage());
                 }

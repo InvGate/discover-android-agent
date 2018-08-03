@@ -1,3 +1,8 @@
 <resources>
-    <string name="app_name">Android Agent</string>
+    <string name="app_name">Discover Agent</string>
+    <string name="preference_file_key">ConfigKey</string>
+    <string name="uuid"></string>
+    <string name="last_reported"></string>
+    <string name="apiurl">http://52.3.214.137:3000</string>
+    <string name="inventory_interval">300</string>
 </resources>
