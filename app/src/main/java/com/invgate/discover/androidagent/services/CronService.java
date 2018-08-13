@@ -7,6 +7,7 @@ import android.util.Log;
 import com.google.android.gms.gcm.GcmNetworkManager;
 import com.google.android.gms.gcm.GcmTaskService;
 import com.google.android.gms.gcm.TaskParams;
+import com.invgate.discover.androidagent.R;
 
 import org.flyve.inventory.InventoryTask;
 
@@ -15,7 +16,7 @@ public class CronService extends GcmTaskService {
 
     public static InventoryTask inventoryTask;
     public static Inventory inventoryService;
-
+    private Context context;
 
     /**
      * Create the inventory task collector and the inventory service
@@ -27,11 +28,24 @@ public class CronService extends GcmTaskService {
         } catch (PackageManager.NameNotFoundException ex) {
             Log.e("AppVersion","not found", ex);
         }
-        Context cx = getApplicationContext();
-        inventoryTask = new InventoryTask(cx, appVersion, true);
-        inventoryService = new Inventory(cx);
+
+        // TODO: This comment will be used when QR is implemented
+        // String apiurl = Preferences.Instance().getString("apiurl", "");
+        String apiurl = getString(R.string.apiurl);
+        Api.configure(apiurl);
+
+        context = getApplicationContext();
+        Preferences.configure(context);
+
+        inventoryTask = new InventoryTask(context, appVersion, false);
+        inventoryService = new Inventory();
     }
 
+    /**
+     * This will be invoked in the configured scheduler period, getting the inventory and sending to the API
+     * @param params Task Params
+     * @return Network Manager Result
+     */
     @Override
     public int onRunTask(TaskParams params) {
 
@@ -45,6 +59,8 @@ public class CronService extends GcmTaskService {
             @Override
             public void onTaskSuccess(String data) {
                 Log.d("getJSON", data);
+                String inventoryId = Preferences.Instance().getString("uuid", "");
+                Log.d("Inventory ID", inventoryId);
                 inventoryService.send(data);
             }
 
