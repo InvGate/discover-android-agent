@@ -8,6 +8,7 @@ import com.google.android.gms.gcm.GcmNetworkManager;
 import com.google.android.gms.gcm.GcmTaskService;
 import com.google.android.gms.gcm.TaskParams;
 import com.invgate.discover.androidagent.R;
+import com.invgate.discover.androidagent.models.InventoryResponse;
 
 import org.flyve.inventory.InventoryTask;
 
@@ -61,7 +62,13 @@ public class CronService extends GcmTaskService {
                 Log.d("getJSON", data);
                 String inventoryId = Preferences.Instance().getString("uuid", "");
                 Log.d("Inventory ID", inventoryId);
-                inventoryService.send(data);
+                inventoryService.send(data).subscribe(
+                        dataObj -> {
+                            InventoryResponse inventoryResponse = (InventoryResponse) dataObj;
+                            Log.i("InventoryResult", inventoryResponse.getStatus());
+                            ServiceScheduler.schedule(inventoryResponse.getInventoryInterval() * 60, context);
+                        }
+                );
             }
 
             @Override

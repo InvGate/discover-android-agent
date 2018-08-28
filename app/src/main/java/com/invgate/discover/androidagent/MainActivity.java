@@ -10,7 +10,6 @@ import com.invgate.discover.androidagent.services.Api;
 import com.invgate.discover.androidagent.services.Preferences;
 import com.invgate.discover.androidagent.services.ServiceScheduler;
 
-import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -25,6 +24,7 @@ public class MainActivity extends AppCompatActivity {
                 "inventory_interval",
                 Long.parseLong(getString(R.string.inventory_interval))
         );
+        configureScreenSize();
         this.startApp();
     }
 
@@ -48,6 +48,15 @@ public class MainActivity extends AppCompatActivity {
             // Show the qr button
         }
 
+    }
+
+    protected void configureScreenSize() {
+
+        double screenInches = Util.getScreenDiagonal(getWindowManager());
+
+        SharedPreferences.Editor editor = Preferences.Instance().edit();
+        editor.putString("screen_size", String.format("%.1f", screenInches));
+        editor.commit();
     }
 
     /**
