@@ -1,13 +1,15 @@
 
 package com.invgate.discover.androidagent.resources;
 
-import okhttp3.ResponseBody;
+import com.invgate.discover.androidagent.models.InventoryModel;
+import com.invgate.discover.androidagent.models.InventoryResponse;
+
+import io.reactivex.Observable;
 import retrofit2.http.Body;
 import retrofit2.http.POST;
-import retrofit2.Call;
 
 
 public interface Inventory {
-    @POST("/")
-    Call<ResponseBody> send(@Body String data);
+    @POST("/api/inventory-mobile/")
+    Observable<InventoryResponse> send(@Body InventoryModel data);
 }
