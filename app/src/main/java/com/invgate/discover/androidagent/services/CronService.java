@@ -31,8 +31,8 @@ public class CronService extends GcmTaskService {
         }
 
         // TODO: This comment will be used when QR is implemented
-        // String apiurl = Preferences.Instance().getString("apiurl", "");
-        String apiurl = getString(R.string.apiurl);
+        String apiurl = Preferences.Instance().getString("apiurl", "");
+        // String apiurl = getString(R.string.apiurl);
         Api.configure(apiurl);
 
         context = getApplicationContext();

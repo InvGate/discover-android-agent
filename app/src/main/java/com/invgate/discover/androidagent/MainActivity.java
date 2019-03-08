@@ -1,21 +1,28 @@
 package com.invgate.discover.androidagent;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.FrameLayout;
 
 import com.invgate.discover.androidagent.services.Agent;
 import com.invgate.discover.androidagent.services.Api;
 import com.invgate.discover.androidagent.services.Preferences;
 import com.invgate.discover.androidagent.services.ServiceScheduler;
 
-
 public class MainActivity extends AppCompatActivity {
 
     private Long seconds;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        Log.d("App", "Main Activity onCreate");
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Preferences.configure(this);
@@ -28,14 +35,39 @@ public class MainActivity extends AppCompatActivity {
         this.startApp();
     }
 
+    @Override
+    public void onResume()
+    {  // After a pause OR at startup
+        super.onResume();
+        //Refresh your stuff here
+        this.startApp();
+    }
+
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        return true;
+    }
+
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_scan_qr:
+                /* DO EDIT */
+                goToQrScanner();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     /**
      * Starts the app process
      */
     protected void startApp() {
 
         // Check if is configured
+        FrameLayout noConfigured = findViewById(R.id.no_configured);
 
         if (isConfigured()) {
+            noConfigured.setVisibility(View.INVISIBLE);
             Log.d("App", "is configured");
             if (!hasInventoryId()) {
                 Log.d("App", "has not the inventory id");
@@ -45,6 +77,10 @@ public class MainActivity extends AppCompatActivity {
                 ServiceScheduler.schedule(seconds, this);
             }
         } else {
+
+            noConfigured.setVisibility(View.VISIBLE);
+            noConfigured.setOnClickListener((View v) -> goToQrScanner());
+
             // Show the qr button
         }
 
@@ -65,8 +101,8 @@ public class MainActivity extends AppCompatActivity {
      */
     protected boolean isConfigured() {
         // TODO: This comment will be used when QR is implemented
-        // String apiurl = Preferences.Instance().getString("apiurl", "");
-        String apiurl = getString(R.string.apiurl);
+        String apiurl = Preferences.Instance().getString("apiurl", "");
+        // String apiurl = getString(R.string.apiurl);
         if (apiurl != "") {
             Api.configure(apiurl);
             return true;
@@ -81,6 +117,11 @@ public class MainActivity extends AppCompatActivity {
     protected boolean hasInventoryId() {
         String uuid = Preferences.Instance().getString("uuid", "");
         return uuid != "";
+    }
+
+    protected void goToQrScanner() {
+        Intent intent = new Intent(this, QrScannerActivity.class);
+        startActivity(intent);
     }
 
     /**
@@ -108,5 +149,6 @@ public class MainActivity extends AppCompatActivity {
 
         ServiceScheduler.schedule(seconds, this);
     }
+
 
 }
