@@ -29,8 +29,8 @@ public class Storage {
     }
 
     public static long getAvailableExternalMemorySize() {
-        if (externalMemoryAvailable()) {
-            String secStore = System.getenv("SECONDARY_STORAGE");
+        String secStore = System.getenv("SECONDARY_STORAGE");
+        if (externalMemoryAvailable() && secStore != null) {
             File path = new File(secStore);
             StatFs stat = new StatFs(path.getPath());
             long blockSize = stat.getBlockSizeLong();
@@ -42,10 +42,8 @@ public class Storage {
     }
 
     public static long getTotalExternalMemorySize() {
-        if (externalMemoryAvailable()) {
-
-
-            String secStore = System.getenv("SECONDARY_STORAGE");
+        String secStore = System.getenv("SECONDARY_STORAGE");
+        if (externalMemoryAvailable() && secStore != null) {
             File path = new File(secStore);
             StatFs stat = new StatFs(path.getPath());
             long blockSize = stat.getBlockSizeLong();

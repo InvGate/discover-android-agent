@@ -30,13 +30,11 @@ public class CronService extends GcmTaskService {
             Log.e("AppVersion","not found", ex);
         }
 
-        // TODO: This comment will be used when QR is implemented
-        // String apiurl = Preferences.Instance().getString("apiurl", "");
-        String apiurl = getString(R.string.apiurl);
-        Api.configure(apiurl);
-
         context = getApplicationContext();
         Preferences.configure(context);
+
+        String apiurl = Preferences.Instance().getString("apiurl", "");
+        Api.configure(apiurl);
 
         inventoryTask = new InventoryTask(context, appVersion, false);
         inventoryService = new Inventory();

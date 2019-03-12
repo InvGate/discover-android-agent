@@ -21,6 +21,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name="com.invgate.discover.androidagent.QrScannerActivity"
+            android:label="@string/qr_scanner_title"
+            android:parentActivityName="com.invgate.discover.androidagent.MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.invgate.discover.androidagent.MainActivity" />
+        </activity>
 
         <service
             android:name="com.invgate.discover.androidagent.services.CronService"
@@ -30,6 +38,7 @@
                 <action android:name="com.google.android.gms.gcm.ACTION_TASK_READY" />
             </intent-filter>
         </service>
+
     </application>
 
 </manifest>
