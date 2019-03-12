@@ -1,6 +1,72 @@
 package com.invgate.discover.androidagent;
 
-import android.Manifest;
+import android.content.SharedPreferences;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.util.Log;
+import com.google.zxing.Result;
+import com.invgate.discover.androidagent.services.Api;
+import com.invgate.discover.androidagent.services.Preferences;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import me.dm7.barcodescanner.zxing.ZXingScannerView;
+
+public class QrScannerActivity extends AppCompatActivity implements ZXingScannerView.ResultHandler{
+
+    private ZXingScannerView mScannerView;
+
+    @Override
+    public void onCreate(Bundle state) {
+        super.onCreate(state);
+        mScannerView = new ZXingScannerView(this);   // Programmatically initialize the scanner view
+        setContentView(mScannerView);                // Set the scanner view as the content view
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mScannerView.setResultHandler(this); // Register ourselves as a handler for scan results.
+        mScannerView.startCamera();          // Start camera on resume
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        mScannerView.stopCamera();           // Stop camera on pause
+    }
+
+    @Override
+    public void handleResult(Result rawResult) {
+        // Do something with the result here
+        String token = rawResult.getText();
+        Log.v("tag", token); // Prints scan results
+        // Log.v("tag", rawResult.getBarcodeFormat().toString()); // Prints the scan format (qrcode, pdf417 etc.)
+
+
+        try {
+            JSONObject json = new JSONObject(token);
+            String url = json.getString("url");
+            SharedPreferences.Editor editor = Preferences.Instance().edit();
+            editor.putString("apiurl", url);
+            editor.commit();
+            Api.configure(url);
+
+            onBackPressed();
+
+        } catch (JSONException ex) {
+            Log.e("JSON", ex.getMessage());
+        }
+
+
+        // If you would like to resume scanning, call this method below:
+        //mScannerView.resumeCameraPreview(this);
+    }
+}
+
+
+/*import android.Manifest;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -134,18 +200,7 @@ public class QrScannerActivity extends AppCompatActivity {
                             Log.e("JSON", ex.getMessage());
                         }
 
-                        /*if (URLUtil.isValidUrl(token)) {
-                            // si es una URL valida abre el navegador
-                            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(token));
-                            startActivity(browserIntent);
-                        } else {
-                            // comparte en otras apps
-                            Intent shareIntent = new Intent();
-                            shareIntent.setAction(Intent.ACTION_SEND);
-                            shareIntent.putExtra(Intent.EXTRA_TEXT, token);
-                            shareIntent.setType("text/plain");
-                            startActivity(shareIntent);
-                        }*/
+
 
                         new Thread(new Runnable() {
                             public void run() {
@@ -171,3 +226,5 @@ public class QrScannerActivity extends AppCompatActivity {
     }
 
 }
+
+*/

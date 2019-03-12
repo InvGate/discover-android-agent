@@ -1,7 +1,14 @@
 package com.invgate.discover.androidagent;
 
+import android.Manifest;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.os.Build;
+import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -10,6 +17,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
 
+import com.invgate.discover.androidagent.utils.PermissionHelper;
 import com.invgate.discover.androidagent.services.Agent;
 import com.invgate.discover.androidagent.services.Api;
 import com.invgate.discover.androidagent.services.Preferences;
@@ -18,6 +26,9 @@ import com.invgate.discover.androidagent.services.ServiceScheduler;
 public class MainActivity extends AppCompatActivity {
 
     private Long seconds;
+    private PermissionHelper permissionHelper;
+    private int CAMERA_CODE = 1;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -32,7 +43,8 @@ public class MainActivity extends AppCompatActivity {
                 Long.parseLong(getString(R.string.inventory_interval))
         );
         configureScreenSize();
-        this.startApp();
+        this.permissionHelper = new PermissionHelper(this);
+        // this.startApp();
     }
 
     @Override
@@ -81,7 +93,6 @@ public class MainActivity extends AppCompatActivity {
             noConfigured.setVisibility(View.VISIBLE);
             noConfigured.setOnClickListener((View v) -> goToQrScanner());
 
-            // Show the qr button
         }
 
     }
@@ -102,7 +113,6 @@ public class MainActivity extends AppCompatActivity {
     protected boolean isConfigured() {
         // TODO: This comment will be used when QR is implemented
         String apiurl = Preferences.Instance().getString("apiurl", "");
-        // String apiurl = getString(R.string.apiurl);
         if (apiurl != "") {
             Api.configure(apiurl);
             return true;
@@ -120,8 +130,28 @@ public class MainActivity extends AppCompatActivity {
     }
 
     protected void goToQrScanner() {
-        Intent intent = new Intent(this, QrScannerActivity.class);
-        startActivity(intent);
+
+        if (!permissionHelper.permissionAlreadyGranted(Manifest.permission.CAMERA)) {
+            permissionHelper.requestPermission(Manifest.permission.CAMERA, CAMERA_CODE);
+        } else {
+            Intent intent = new Intent(this, QrScannerActivity.class);
+            startActivity(intent);
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+
+        if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            goToQrScanner();
+        } else {
+            boolean showRationale = shouldShowRequestPermissionRationale( Manifest.permission.CAMERA );
+            if (! showRationale) {
+                permissionHelper.openSettingsDialog();
+            }
+        }
+
     }
 
     /**
