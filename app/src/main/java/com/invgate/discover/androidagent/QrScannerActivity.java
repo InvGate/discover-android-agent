@@ -7,6 +7,7 @@ import android.util.Log;
 import com.google.zxing.Result;
 import com.invgate.discover.androidagent.services.Api;
 import com.invgate.discover.androidagent.services.Preferences;
+import com.invgate.discover.androidagent.utils.Constants;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -41,9 +42,7 @@ public class QrScannerActivity extends AppCompatActivity implements ZXingScanner
     public void handleResult(Result rawResult) {
         // Do something with the result here
         String token = rawResult.getText();
-        Log.v("tag", token); // Prints scan results
-        // Log.v("tag", rawResult.getBarcodeFormat().toString()); // Prints the scan format (qrcode, pdf417 etc.)
-
+        Log.d(Constants.LOG_TAG, "Qr scan result: " + token); // Prints scan results
 
         try {
             JSONObject json = new JSONObject(token);
@@ -56,12 +55,8 @@ public class QrScannerActivity extends AppCompatActivity implements ZXingScanner
             onBackPressed();
 
         } catch (JSONException ex) {
-            Log.e("JSON", ex.getMessage());
+            Log.e(Constants.LOG_TAG, "Error loading QR code", ex);
         }
-
-
-        // If you would like to resume scanning, call this method below:
-        //mScannerView.resumeCameraPreview(this);
     }
 }
 
