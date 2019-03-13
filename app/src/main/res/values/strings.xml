@@ -6,4 +6,6 @@
     <string name="last_reported"></string>
     <string name="apiurl">http://52.3.214.137:3000</string>
     <string name="inventory_interval">60</string>
+    <string name="error_log_file_name">error_log</string>
+    <string name="error_log_file_ext">txt</string>
 </resources>

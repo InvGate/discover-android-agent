@@ -15,6 +15,7 @@ import com.invgate.discover.androidagent.models.OperatingSystem;
 import com.invgate.discover.androidagent.models.Request;
 import com.invgate.discover.androidagent.models.Software;
 import com.invgate.discover.androidagent.models.Video;
+import com.invgate.discover.androidagent.utils.Constants;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -47,7 +48,7 @@ public class Inventory {
                     .observeOn(AndroidSchedulers.mainThread());
 
         } else {
-            Log.e("INVENTORY", "Inventory JSON is bad formatted");
+            Log.e(Constants.LOG_TAG, "Inventory JSON is bad formatted");
             return Observable.empty();
         }
     }

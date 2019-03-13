@@ -9,6 +9,7 @@ import com.google.android.gms.gcm.GcmTaskService;
 import com.google.android.gms.gcm.TaskParams;
 import com.invgate.discover.androidagent.R;
 import com.invgate.discover.androidagent.models.InventoryResponse;
+import com.invgate.discover.androidagent.utils.Constants;
 
 import org.flyve.inventory.InventoryTask;
 
@@ -26,8 +27,9 @@ public class CronService extends GcmTaskService {
         String appVersion = "not-found";
         try {
             appVersion = this.getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+            Log.d(Constants.LOG_TAG, "App version: " + appVersion);
         } catch (PackageManager.NameNotFoundException ex) {
-            Log.e("AppVersion","not found", ex);
+            Log.e(Constants.LOG_TAG,"App version not found", ex);
         }
 
         context = getApplicationContext();
@@ -48,7 +50,7 @@ public class CronService extends GcmTaskService {
     @Override
     public int onRunTask(TaskParams params) {
 
-        Log.d("App", "Running background task");
+        Log.i(Constants.LOG_TAG, "Running background get inventory");
 
         if (inventoryTask == null) {
             this.initializeServices();
@@ -57,13 +59,13 @@ public class CronService extends GcmTaskService {
         inventoryTask.getJSON(new InventoryTask.OnTaskCompleted() {
             @Override
             public void onTaskSuccess(String data) {
-                Log.d("getJSON", data);
+                Log.d(Constants.LOG_TAG, "Inventory string result: " + data);
+
                 String inventoryId = Preferences.Instance().getString("uuid", "");
-                Log.d("Inventory ID", inventoryId);
                 inventoryService.send(data).subscribe(
                         dataObj -> {
                             InventoryResponse inventoryResponse = (InventoryResponse) dataObj;
-                            Log.i("InventoryResult", inventoryResponse.getStatus());
+                            Log.d(Constants.LOG_TAG, "Insight Api inventory stored: " + inventoryResponse.getStatus());
                             ServiceScheduler.schedule(inventoryResponse.getInventoryInterval() * 60, context);
                         }
                 );
@@ -71,7 +73,7 @@ public class CronService extends GcmTaskService {
 
             @Override
             public void onTaskError(Throwable error) {
-                Log.e("getJSON error", error.getMessage());
+                Log.e(Constants.LOG_TAG, "Getting Inventory JSON Error", error);
             }
         });
 

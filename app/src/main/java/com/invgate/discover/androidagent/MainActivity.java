@@ -15,8 +15,11 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.FrameLayout;
 
+import com.invgate.discover.androidagent.services.LogExport;
+import com.invgate.discover.androidagent.utils.Constants;
 import com.invgate.discover.androidagent.utils.PermissionHelper;
 import com.invgate.discover.androidagent.services.Agent;
 import com.invgate.discover.androidagent.services.Api;
@@ -25,26 +28,18 @@ import com.invgate.discover.androidagent.services.ServiceScheduler;
 
 public class MainActivity extends AppCompatActivity {
 
-    private Long seconds;
+    private Long seconds = 1L;
     private PermissionHelper permissionHelper;
     private int CAMERA_CODE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        Log.d("App", "Main Activity onCreate");
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Preferences.configure(this);
-
-        seconds = Preferences.Instance().getLong(
-                "inventory_interval",
-                Long.parseLong(getString(R.string.inventory_interval))
-        );
         configureScreenSize();
         this.permissionHelper = new PermissionHelper(this);
-        // this.startApp();
     }
 
     @Override
@@ -53,21 +48,6 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         //Refresh your stuff here
         this.startApp();
-    }
-
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main_menu, menu);
-        return true;
-    }
-
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_scan_qr:
-                /* DO EDIT */
-                goToQrScanner();
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     /**
@@ -80,19 +60,28 @@ public class MainActivity extends AppCompatActivity {
 
         if (isConfigured()) {
             noConfigured.setVisibility(View.INVISIBLE);
-            Log.d("App", "is configured");
+            Log.i(Constants.LOG_TAG, "The app is configured");
             if (!hasInventoryId()) {
-                Log.d("App", "has not the inventory id");
+                Log.i(Constants.LOG_TAG, "The app has not the inventory id");
                 createInventoryIdAndSchedule();
             } else {
-                Log.d("App", "has the inventory id");
+                Log.i(Constants.LOG_TAG, "The app has the inventory id");
                 ServiceScheduler.schedule(seconds, this);
             }
-        } else {
 
+            Button errorLogBtn = findViewById(R.id.errorLogBtn);
+            errorLogBtn.setOnClickListener((View v) -> {
+                String logs = LogExport.getLogs();
+                Intent sendIntent = new Intent();
+                sendIntent.setAction(Intent.ACTION_SEND);
+                sendIntent.putExtra(Intent.EXTRA_TEXT, logs);
+                sendIntent.setType("text/plain");
+                startActivity(sendIntent);
+            });
+        } else {
+            Log.i(Constants.LOG_TAG, "The app is not configured yet");
             noConfigured.setVisibility(View.VISIBLE);
             noConfigured.setOnClickListener((View v) -> goToQrScanner());
-
         }
 
     }
@@ -100,9 +89,12 @@ public class MainActivity extends AppCompatActivity {
     protected void configureScreenSize() {
 
         double screenInches = Util.getScreenDiagonal(getWindowManager());
+        String screenInchesText = String.format("%.1f", screenInches);
+
+        Log.d(Constants.LOG_TAG, "Getting screen size: " + screenInchesText);
 
         SharedPreferences.Editor editor = Preferences.Instance().edit();
-        editor.putString("screen_size", String.format("%.1f", screenInches));
+        editor.putString("screen_size", screenInchesText);
         editor.commit();
     }
 
@@ -132,6 +124,7 @@ public class MainActivity extends AppCompatActivity {
     protected void goToQrScanner() {
 
         if (!permissionHelper.permissionAlreadyGranted(Manifest.permission.CAMERA)) {
+            Log.i(Constants.LOG_TAG, "Requesting Camera Permission");
             permissionHelper.requestPermission(Manifest.permission.CAMERA, CAMERA_CODE);
         } else {
             Intent intent = new Intent(this, QrScannerActivity.class);
@@ -144,9 +137,11 @@ public class MainActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
 
         if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            Log.i(Constants.LOG_TAG, "Camera Permission Granted");
             goToQrScanner();
         } else {
             boolean showRationale = shouldShowRequestPermissionRationale( Manifest.permission.CAMERA );
+            Log.d(Constants.LOG_TAG, "Should open settings dialog: " + !showRationale);
             if (! showRationale) {
                 permissionHelper.openSettingsDialog();
             }
@@ -158,7 +153,7 @@ public class MainActivity extends AppCompatActivity {
      * Creates the inventory ID, saving and scheduling the service
      */
     protected void createInventoryIdAndSchedule() {
-        Log.d("App", "creating the inventory id");
+        Log.i(Constants.LOG_TAG, "Creating the inventory id");
         Agent agentService = new Agent(this);
         agentService.create().subscribe(
             uuid -> saveInventoryId(uuid),
@@ -171,7 +166,7 @@ public class MainActivity extends AppCompatActivity {
      * @param uuid The inventory id
      */
     protected void saveInventoryId(String uuid) {
-        Log.d("App", "saving inventory id " + uuid);
+        Log.d(Constants.LOG_TAG, "Saving inventory id: " + uuid);
         // Save the uuid
         SharedPreferences.Editor edit = Preferences.Instance().edit();
         edit.putString("uuid", uuid);
