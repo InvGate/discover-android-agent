@@ -30,19 +30,19 @@ import io.reactivex.schedulers.Schedulers;
 
 public class Inventory {
 
-    public com.invgate.discover.androidagent.resources.Inventory inventory;
-
 
     public Inventory() {
-        inventory = Api.Instance()
-                       .create(com.invgate.discover.androidagent.resources.Inventory.class);
+
     }
 
     public Observable send(String data) {
 
+        Log.d(Constants.LOG_TAG, "API Base URL: " + Api.Instance().baseUrl());
+        com.invgate.discover.androidagent.resources.Inventory inventory = Api.Instance()
+                .create(com.invgate.discover.androidagent.resources.Inventory.class);
+
         InventoryModel inventoryModel = prepareData(data);
         if (inventoryModel != null) {
-
             Observable<InventoryResponse> inventoryObs = inventory.send(inventoryModel);
             return inventoryObs.subscribeOn(Schedulers.newThread())
                     .observeOn(AndroidSchedulers.mainThread());

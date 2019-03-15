@@ -1,17 +1,23 @@
 package com.invgate.discover.androidagent.services;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.gcm.GcmNetworkManager;
 import com.google.android.gms.gcm.GcmTaskService;
 import com.google.android.gms.gcm.TaskParams;
 import com.invgate.discover.androidagent.R;
 import com.invgate.discover.androidagent.models.InventoryResponse;
+import com.invgate.discover.androidagent.models.MainActivityModel;
 import com.invgate.discover.androidagent.utils.Constants;
 
 import org.flyve.inventory.InventoryTask;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class CronService extends GcmTaskService {
 
@@ -63,11 +69,18 @@ public class CronService extends GcmTaskService {
 
                 String inventoryId = Preferences.Instance().getString("uuid", "");
                 inventoryService.send(data).subscribe(
-                        dataObj -> {
-                            InventoryResponse inventoryResponse = (InventoryResponse) dataObj;
-                            Log.d(Constants.LOG_TAG, "Insight Api inventory stored: " + inventoryResponse.getStatus());
-                            ServiceScheduler.schedule(inventoryResponse.getInventoryInterval() * 60, context);
-                        }
+                    dataObj -> {
+                        InventoryResponse inventoryResponse = (InventoryResponse) dataObj;
+                        Log.d(Constants.LOG_TAG, "Insight Api inventory stored: " + inventoryResponse.getStatus());
+                        saveLastReported();
+                        ServiceScheduler.schedule(inventoryResponse.getInventoryInterval() * 60, context);
+                    },
+                    e -> {
+                        String errorMsg = getString(R.string.error_sending_inventory);
+                        // Toast.makeText(context, errorMsg, Toast.LENGTH_LONG).show();
+                        Log.e(Constants.LOG_TAG, "Inventory request failed", (Throwable) e);
+                    }
+
                 );
             }
 
@@ -79,5 +92,15 @@ public class CronService extends GcmTaskService {
 
         return GcmNetworkManager.RESULT_SUCCESS;
 
+    }
+
+    protected void saveLastReported() {
+        SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+        String lastReported = format.format(new Date()).toString();
+        MainActivityModel.Instance().setLastReport(lastReported);
+
+        SharedPreferences.Editor editor = Preferences.Instance().edit();
+        editor.putString("last_reported", lastReported);
+        editor.commit();
     }
 }

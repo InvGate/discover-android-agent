@@ -1,11 +1,19 @@
 <resources>
-    <string name="app_name">Discover Agent</string>
+    <string name="app_name">InvGate Mobile Agent</string>
     <string name="qr_scanner_title">Scan QR Code</string>
     <string name="preference_file_key">ConfigKey</string>
+
     <string name="uuid"></string>
     <string name="last_reported"></string>
     <string name="apiurl">http://52.3.214.137:3000</string>
     <string name="inventory_interval">60</string>
     <string name="error_log_file_name">error_log</string>
     <string name="error_log_file_ext">txt</string>
+    <string name="error_json_qr">Invalid QR Code format</string>
+    <string name="error_sending_inventory">Error sending the inventory. Check error logs</string>
+    <string name="qr_scanned_ok">The device is now connected</string>
+
+    <string name="pair_text">Pair your mobile device with InvGate Insight.\nYou can find a QR pairing code in Settings > Agent Deployment > Android Scan</string>
+    <string name="scan_now_text">SCAN NOW</string>
+    <string name="connect_to_insight_text">Connect to Insight</string>
 </resources>

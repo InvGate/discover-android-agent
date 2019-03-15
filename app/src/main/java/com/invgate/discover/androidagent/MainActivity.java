@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.databinding.DataBindingUtil;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
@@ -17,7 +18,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 
+import com.invgate.discover.androidagent.databinding.ActivityMainBinding;
+import com.invgate.discover.androidagent.models.MainActivityModel;
 import com.invgate.discover.androidagent.services.LogExport;
 import com.invgate.discover.androidagent.utils.Constants;
 import com.invgate.discover.androidagent.utils.PermissionHelper;
@@ -31,12 +35,12 @@ public class MainActivity extends AppCompatActivity {
     private Long seconds = 1L;
     private PermissionHelper permissionHelper;
     private int CAMERA_CODE = 1;
+    private boolean appConfigured = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
         Preferences.configure(this);
         configureScreenSize();
         this.permissionHelper = new PermissionHelper(this);
@@ -50,40 +54,80 @@ public class MainActivity extends AppCompatActivity {
         this.startApp();
     }
 
+    @Override
+    public void onBackPressed() {
+        this.moveTaskToBack(false);
+    }
+
     /**
      * Starts the app process
      */
     protected void startApp() {
 
         // Check if is configured
-        FrameLayout noConfigured = findViewById(R.id.no_configured);
 
         if (isConfigured()) {
-            noConfigured.setVisibility(View.INVISIBLE);
-            Log.i(Constants.LOG_TAG, "The app is configured");
-            if (!hasInventoryId()) {
-                Log.i(Constants.LOG_TAG, "The app has not the inventory id");
-                createInventoryIdAndSchedule();
-            } else {
-                Log.i(Constants.LOG_TAG, "The app has the inventory id");
-                ServiceScheduler.schedule(seconds, this);
+
+            if (!appConfigured) {
+                appConfigured = true;
+                setBindingModel();
+
+                Log.i(Constants.LOG_TAG, "The app is configured");
+                if (!hasInventoryId()) {
+                    Log.i(Constants.LOG_TAG, "The app has not the inventory id");
+                    createInventoryIdAndSchedule();
+                } else {
+                    Log.i(Constants.LOG_TAG, "The app has the inventory id");
+                    ServiceScheduler.schedule(seconds, this);
+                }
+
+                setButtonHandlers();
             }
 
-            Button errorLogBtn = findViewById(R.id.errorLogBtn);
-            errorLogBtn.setOnClickListener((View v) -> {
-                String logs = LogExport.getLogs();
-                Intent sendIntent = new Intent();
-                sendIntent.setAction(Intent.ACTION_SEND);
-                sendIntent.putExtra(Intent.EXTRA_TEXT, logs);
-                sendIntent.setType("text/plain");
-                startActivity(sendIntent);
-            });
         } else {
             Log.i(Constants.LOG_TAG, "The app is not configured yet");
-            noConfigured.setVisibility(View.VISIBLE);
-            noConfigured.setOnClickListener((View v) -> goToQrScanner());
+            setContentView(R.layout.activity_config);
+            findViewById(R.id.qrScanBtn).setOnClickListener((View v) -> goToQrScanner());
         }
 
+    }
+
+    protected void setBindingModel() {
+        ActivityMainBinding activityBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
+        MainActivityModel model = MainActivityModel.Instance();
+        model.setLastReport(Preferences.Instance().getString("last_reported", null));
+        model.setInstanceUrl(Preferences.Instance().getString("apiurl", null));
+        activityBinding.setModel(model);
+
+        try {
+            TextView tv = findViewById(R.id.versionValueText);
+            tv.setText(this.getPackageManager().getPackageInfo(getPackageName(), 0).versionName);
+        } catch (PackageManager.NameNotFoundException ex) {
+            Log.e(Constants.LOG_TAG,"App version not found", ex);
+        }
+    }
+
+    protected void setButtonHandlers() {
+
+        // Re scan Qr
+        Button rescanBtn = findViewById(R.id.rescanBtn);
+        rescanBtn.setOnClickListener((View v) -> goToQrScanner());
+
+        Button sendInventoryBtn = findViewById(R.id.sendInventoryBtn);
+        sendInventoryBtn.setOnClickListener((View v) -> {
+
+        });
+
+        // Share error log
+        Button errorLogBtn = findViewById(R.id.errorLogBtn);
+        errorLogBtn.setOnClickListener((View v) -> {
+            String logs = LogExport.getLogs();
+            Intent sendIntent = new Intent();
+            sendIntent.setAction(Intent.ACTION_SEND);
+            sendIntent.putExtra(Intent.EXTRA_TEXT, logs);
+            sendIntent.setType("text/plain");
+            startActivity(sendIntent);
+        });
     }
 
     protected void configureScreenSize() {

@@ -1,6 +1,10 @@
 package com.invgate.discover.androidagent.services;
 
 
+import android.util.Log;
+
+import com.invgate.discover.androidagent.utils.Constants;
+
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -12,14 +16,7 @@ public class Api {
     private Retrofit retrofit;
 
     private Api () {
-
-        // Create a very simple REST adapter
-        retrofit = new Retrofit.Builder()
-                .baseUrl(baseURL)
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-
+        buildRetrofit();
     }
 
     public static Retrofit Instance() {
@@ -31,6 +28,20 @@ public class Api {
 
     public static void configure(String baseURL) {
         Api.baseURL = baseURL;
+        if (instance != null) {
+            Log.d(Constants.LOG_TAG, "Base URL changed to: " + baseURL);
+            instance.buildRetrofit();
+        }
+
+    }
+
+    public void buildRetrofit() {
+        // Create a very simple REST adapter
+        retrofit = new Retrofit.Builder()
+                .baseUrl(baseURL)
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
     }
 
 }
