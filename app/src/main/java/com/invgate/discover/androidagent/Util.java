@@ -35,7 +35,7 @@ public class Util {
             realWidth = realMetrics.widthPixels;
             realHeight = realMetrics.heightPixels;
 
-        } else if (Build.VERSION.SDK_INT >= 14) {
+        } else {
             //reflection for this weird in-between time
             try {
                 Method mGetRawH = Display.class.getMethod("getRawHeight");
@@ -44,15 +44,13 @@ public class Util {
                 realHeight = (Integer) mGetRawH.invoke(display);
             } catch (Exception e) {
                 //this may not be 100% accurate, but it's all we've got
-                realWidth = display.getWidth();
-                realHeight = display.getHeight();
+                /*realWidth = display.getWidth();
+                realHeight = display.getHeight();*/
+                realHeight = 0;
+                realWidth = 0;
                 Log.e("Display Info", "Couldn't use reflection to get the real display metrics.");
             }
 
-        } else {
-            //This should be close, as lower API devices should not have window navigation bars
-            realWidth = display.getWidth();
-            realHeight = display.getHeight();
         }
 
         double wi=(double)realWidth/(double)realMetrics.xdpi;

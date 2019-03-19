@@ -81,7 +81,8 @@ public class Inventory {
 
         request.setFreeStorage((double) availableExternalMemorySize + availableInternalMemorySize);
         request.setTotalStorage((double) totalExternal + totalInternal);
-        request.setScreenSize(Double.parseDouble(Preferences.Instance().getString("screen_size", "")));
+        String screenSize = Preferences.Instance().getString("screen_size", "").replaceAll(",", ".");
+        request.setScreenSize(Double.parseDouble(screenSize));
         request.setContent(createContent(json.getJSONObject("content")));
 
 
