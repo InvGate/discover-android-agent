@@ -13,15 +13,14 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.invgate.discover.androidagent.databinding.ActivityMainBinding;
 import com.invgate.discover.androidagent.models.MainActivityModel;
+import com.invgate.discover.androidagent.services.CronService;
 import com.invgate.discover.androidagent.services.LogExport;
 import com.invgate.discover.androidagent.utils.Constants;
 import com.invgate.discover.androidagent.utils.PermissionHelper;
@@ -69,7 +68,6 @@ public class MainActivity extends AppCompatActivity {
         if (isConfigured()) {
 
             if (!appConfigured) {
-                appConfigured = true;
                 setBindingModel();
 
                 Log.i(Constants.LOG_TAG, "The app is configured");
@@ -82,6 +80,7 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 setButtonHandlers();
+                appConfigured = true;
             }
 
         } else {
@@ -115,7 +114,14 @@ public class MainActivity extends AppCompatActivity {
 
         Button sendInventoryBtn = findViewById(R.id.sendInventoryBtn);
         sendInventoryBtn.setOnClickListener((View v) -> {
-
+            Log.i(Constants.LOG_TAG, "Running force send inventory");
+            CronService cronService = new CronService();
+            // disable send button
+            sendInventoryBtn.setEnabled(false);
+            cronService.sendInventory(this).subscribe(result -> {
+                // enable button
+                sendInventoryBtn.setEnabled(true);
+            });
         });
 
         // Share error log
@@ -201,7 +207,11 @@ public class MainActivity extends AppCompatActivity {
         Agent agentService = new Agent(this);
         agentService.create().subscribe(
             uuid -> saveInventoryId(uuid),
-            e -> Log.e("Subscribe", "Error", e)
+            e -> {
+                Log.e(Constants.LOG_TAG, "Error saving inventory id", e);
+                String message = getString(R.string.error_saving_inventory_id);
+                Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+            }
         );
     }
 
