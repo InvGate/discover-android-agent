@@ -21,7 +21,7 @@ public class ServiceScheduler {
                 .setPeriod(seconds)
                 .setTag(ServiceScheduler.TAG)
                 .setPersisted(true) // To be executed on start up and kill app
-                .setRequiredNetwork(Task.NETWORK_STATE_CONNECTED) // Only with internet connection
+                // .setRequiredNetwork(Task.NETWORK_STATE_CONNECTED) // Only with internet connection
                 .build();
 
         gcmNetworkManager.schedule(myTask);

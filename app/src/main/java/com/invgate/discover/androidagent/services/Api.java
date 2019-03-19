@@ -28,7 +28,7 @@ public class Api {
 
     public static void configure(String baseURL) {
         Api.baseURL = baseURL;
-        if (instance != null) {
+        if (instance != null /*&& instance.retrofit.baseUrl(). != baseURL*/) {
             Log.d(Constants.LOG_TAG, "Base URL changed to: " + baseURL);
             instance.buildRetrofit();
         }

@@ -10,10 +10,15 @@
     <string name="error_log_file_name">error_log</string>
     <string name="error_log_file_ext">txt</string>
     <string name="error_json_qr">Invalid QR Code format</string>
+    <string name="error_saving_inventory_id">Error saving inventory id. Please report errors</string>
     <string name="error_sending_inventory">Error sending the inventory. Check error logs</string>
     <string name="qr_scanned_ok">The device is now connected</string>
 
     <string name="pair_text">Pair your mobile device with InvGate Insight.\nYou can find a QR pairing code in Settings > Agent Deployment > Android Scan</string>
     <string name="scan_now_text">SCAN NOW</string>
+    <string name="re_scan_qr_text">Re-scan QR</string>
+    <string name="error_logs_text">Error logs</string>
+    <string name="send_inventory_now_text">SCAN NOW</string>
     <string name="connect_to_insight_text">Connect to Insight</string>
+    <string name="waiting_first_report_text">Waiting for first scan</string>
 </resources>

@@ -19,26 +19,28 @@ import org.flyve.inventory.InventoryTask;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import io.reactivex.Observable;
+
 public class CronService extends GcmTaskService {
 
 
     public static InventoryTask inventoryTask;
     public static Inventory inventoryService;
-    private Context context;
 
     /**
      * Create the inventory task collector and the inventory service
      */
-    public void initializeServices() {
+    public void initializeServices(Context context) {
         String appVersion = "not-found";
+
         try {
-            appVersion = this.getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+            appVersion = context.getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
             Log.d(Constants.LOG_TAG, "App version: " + appVersion);
         } catch (PackageManager.NameNotFoundException ex) {
             Log.e(Constants.LOG_TAG,"App version not found", ex);
         }
 
-        context = getApplicationContext();
+
         Preferences.configure(context);
 
         String apiurl = Preferences.Instance().getString("apiurl", "");
@@ -56,41 +58,59 @@ public class CronService extends GcmTaskService {
     @Override
     public int onRunTask(TaskParams params) {
 
-        Log.i(Constants.LOG_TAG, "Running background get inventory");
+        Log.i(Constants.LOG_TAG, "Running scheduled send inventory");
 
-        if (inventoryTask == null) {
-            this.initializeServices();
-        }
+        Context context = getApplicationContext();
 
-        inventoryTask.getJSON(new InventoryTask.OnTaskCompleted() {
-            @Override
-            public void onTaskSuccess(String data) {
-                Log.d(Constants.LOG_TAG, "Inventory string result: " + data);
-
-                String inventoryId = Preferences.Instance().getString("uuid", "");
-                inventoryService.send(data).subscribe(
-                    dataObj -> {
-                        InventoryResponse inventoryResponse = (InventoryResponse) dataObj;
-                        Log.d(Constants.LOG_TAG, "Insight Api inventory stored: " + inventoryResponse.getStatus());
-                        saveLastReported();
-                        ServiceScheduler.schedule(inventoryResponse.getInventoryInterval() * 60, context);
-                    },
-                    e -> {
-                        String errorMsg = getString(R.string.error_sending_inventory);
-                        // Toast.makeText(context, errorMsg, Toast.LENGTH_LONG).show();
-                        Log.e(Constants.LOG_TAG, "Inventory request failed", (Throwable) e);
-                    }
-
-                );
-            }
-
-            @Override
-            public void onTaskError(Throwable error) {
-                Log.e(Constants.LOG_TAG, "Getting Inventory JSON Error", error);
-            }
+        this.sendInventory(context).subscribe(response -> {
+            InventoryResponse inventoryResponse = (InventoryResponse) response;
+            Long interval = inventoryResponse.getInventoryInterval();
+            Log.d(Constants.LOG_TAG, "Scheduling in " + interval.toString() + " seconds");
+            ServiceScheduler.schedule(interval, context);
         });
 
         return GcmNetworkManager.RESULT_SUCCESS;
+
+    }
+
+    public Observable sendInventory(Context context) {
+        if (inventoryTask == null) {
+            this.initializeServices(context);
+        }
+
+        Observable observable = Observable.create(emitter -> {
+
+            inventoryTask.getJSON(new InventoryTask.OnTaskCompleted() {
+                @Override
+                public void onTaskSuccess(String data) {
+                    Log.d(Constants.LOG_TAG, "Inventory string result: " + data);
+
+                    inventoryService.send(data).subscribe(
+                        dataObj -> {
+                            InventoryResponse inventoryResponse = (InventoryResponse) dataObj;
+                            Log.d(Constants.LOG_TAG, "Insight Api inventory stored: " + inventoryResponse.getStatus());
+                            saveLastReported();
+                            emitter.onNext(inventoryResponse);
+                        },
+                        e -> {
+                            String errorMsg = context.getString(R.string.error_sending_inventory);
+                            Log.e(Constants.LOG_TAG, errorMsg, (Throwable) e);
+                        }
+
+                    );
+                }
+
+                @Override
+                public void onTaskError(Throwable error) {
+                    Log.e(Constants.LOG_TAG, "Getting Inventory JSON Error", error);
+                }
+            });
+
+        });
+
+        return observable;
+
+
 
     }
 
