@@ -18,7 +18,7 @@
     <string name="scan_now_text">SCAN NOW</string>
     <string name="re_scan_qr_text">Re-scan QR</string>
     <string name="error_logs_text">Error logs</string>
-    <string name="send_inventory_now_text">SCAN NOW</string>
+    <string name="send_inventory_now_text">SEND INVENTORY NOW</string>
     <string name="connect_to_insight_text">Connect to Insight</string>
     <string name="waiting_first_report_text">Waiting for first scan</string>
 </resources>
