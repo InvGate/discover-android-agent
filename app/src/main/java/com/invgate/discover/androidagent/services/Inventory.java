@@ -64,6 +64,7 @@ public class Inventory {
             inventoryModel.setRequest(request);
             return inventoryModel;
         } catch (JSONException ex) {
+            Log.e(Constants.LOG_TAG, "Error parsing data from flyve", ex);
             return null;
         }
     }
@@ -110,7 +111,7 @@ public class Inventory {
         content.setCpus(createCpus(json.getJSONArray("cpus")));
         content.setHardware(createHardwares(json.getJSONArray("hardware")));
         content.setNetworks(createNetworks(json.getJSONArray("networks")));
-        content.setOperatingSystem(createOperatingSystems(json.getJSONArray("operatingSystem")));
+        content.setOperatingSystem(createOperatingSystems(json));
         content.setSoftwares(createSoftwares(json.getJSONArray("softwares")));
         content.setVideos(createVideos(json.getJSONArray("videos")));
 
@@ -229,20 +230,35 @@ public class Inventory {
         return networks;
     }
 
-    private List<OperatingSystem> createOperatingSystems(JSONArray json) throws JSONException {
+    private List<OperatingSystem> createOperatingSystems(JSONObject json) throws JSONException {
+
         List<OperatingSystem> operatingSystems = new ArrayList<>();
 
-        if(json!=null && json.length()>0){
-            for (int i = 0; i < json.length(); i++) {
-                JSONObject item = json.optJSONObject(i);
-                OperatingSystem operatingSystem = new OperatingSystem();
-                operatingSystem.setArchitecture(this.getString(item, "architecture"));
-                operatingSystem.setFullName(this.getString(item, "fullName"));
-                operatingSystem.setName(this.getString(item, "Name"));
-                operatingSystem.setVersion(this.getString(item, "Version"));
-                operatingSystems.add(operatingSystem);
+        if (json.has("operativeSystem")) {
+            JSONArray jsonItems = json.getJSONArray("operatingSystem");
+
+            if(jsonItems!=null && jsonItems.length()>0){
+                for (int i = 0; i < jsonItems.length(); i++) {
+                    JSONObject item = jsonItems.optJSONObject(i);
+                    OperatingSystem operatingSystem = new OperatingSystem();
+                    operatingSystem.setArchitecture(this.getString(item, "architecture"));
+                    operatingSystem.setFullName(this.getString(item, "fullName"));
+                    operatingSystem.setName(this.getString(item, "Name"));
+                    operatingSystem.setVersion(this.getString(item, "Version"));
+                    operatingSystems.add(operatingSystem);
+                }
+
+                return operatingSystems;
             }
         }
+
+        // If doesn't has operativeSystem json attribute
+        OperatingSystem operatingSystem = new OperatingSystem();
+        operatingSystem.setArchitecture("unknown");
+        operatingSystem.setFullName("unknown");
+        operatingSystem.setName("Android");
+        operatingSystem.setVersion("unknown");
+        operatingSystems.add(operatingSystem);
 
         return operatingSystems;
     }

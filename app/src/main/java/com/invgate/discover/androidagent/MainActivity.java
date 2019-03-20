@@ -121,6 +121,11 @@ public class MainActivity extends AppCompatActivity {
             cronService.sendInventory(this).subscribe(result -> {
                 // enable button
                 sendInventoryBtn.setEnabled(true);
+            }, error -> {
+                sendInventoryBtn.setEnabled(true);
+                Log.e(Constants.LOG_TAG, "Error forcing send inventory");
+                String message = getString(R.string.error_sending_inventory);
+                Toast.makeText(this, message, Toast.LENGTH_LONG).show();
             });
         });
 
