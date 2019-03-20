@@ -34,7 +34,7 @@ public class CronService extends GcmTaskService {
         String appVersion = "not-found";
 
         try {
-            appVersion = context.getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+            appVersion = context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionName;
             Log.d(Constants.LOG_TAG, "App version: " + appVersion);
         } catch (PackageManager.NameNotFoundException ex) {
             Log.e(Constants.LOG_TAG,"App version not found", ex);
