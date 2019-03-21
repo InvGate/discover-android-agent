@@ -14,12 +14,13 @@ public class ServiceScheduler {
         GcmNetworkManager gcmNetworkManager = GcmNetworkManager.getInstance(context);
 
         // First cancel a previuos taks
-        gcmNetworkManager.cancelTask(ServiceScheduler.TAG, CronService.class);
+        // gcmNetworkManager.cancelTask(ServiceScheduler.TAG, CronService.class);
 
         PeriodicTask myTask = new PeriodicTask.Builder()
                 .setService(CronService.class)
                 .setPeriod(seconds)
                 .setTag(ServiceScheduler.TAG)
+                .setUpdateCurrent(true)
                 .setPersisted(true) // To be executed on start up and kill app
                 // .setRequiredNetwork(Task.NETWORK_STATE_CONNECTED) // Only with internet connection
                 .build();

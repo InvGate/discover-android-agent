@@ -34,6 +34,15 @@
                 android:value="com.invgate.discover.androidagent.MainActivity" />
         </activity>
 
+        <receiver android:name="com.invgate.discover.androidagent.services.OnStartReceiver"
+            android:enabled="true"
+            android:exported="true"
+            >
+            <intent-filter>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
+
         <service
             android:name="com.invgate.discover.androidagent.services.CronService"
             android:exported="true"
