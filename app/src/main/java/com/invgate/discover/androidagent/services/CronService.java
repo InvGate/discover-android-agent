@@ -68,6 +68,9 @@ public class CronService extends GcmTaskService {
             Long interval = inventoryResponse.getInventoryInterval();
             Log.d(Constants.LOG_TAG, "Scheduling in " + interval.toString() + " seconds");
             ServiceScheduler.schedule(interval, context);
+        }, error -> {
+            String message = getString(R.string.error_sending_inventory);
+            Toast.makeText(this, message, Toast.LENGTH_LONG).show();
         });
 
         return GcmNetworkManager.RESULT_SUCCESS;
@@ -96,6 +99,7 @@ public class CronService extends GcmTaskService {
                         e -> {
                             String errorMsg = context.getString(R.string.error_sending_inventory);
                             Log.e(Constants.LOG_TAG, errorMsg, (Throwable) e);
+                            emitter.onError((Throwable) e);
                         }
 
                     );

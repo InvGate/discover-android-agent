@@ -49,7 +49,7 @@ public class Inventory {
 
         } else {
             Log.e(Constants.LOG_TAG, "Inventory JSON is bad formatted");
-            return Observable.empty();
+            return Observable.error(new Exception());
         }
     }
 
@@ -105,7 +105,7 @@ public class Inventory {
 
     private Content createContent(JSONObject json) throws JSONException {
         Content content = new Content();
-        content.setBatteries(createBatteries(json.getJSONArray("batteries")));
+        content.setBatteries(createBatteries(json));
         content.setBios(createBios(json.getJSONArray("bios")));
         content.setCameras(createCameras(json));
         content.setCpus(createCpus(json.getJSONArray("cpus")));
@@ -118,21 +118,37 @@ public class Inventory {
         return content;
     }
 
-    private List<Battery> createBatteries(JSONArray json) throws JSONException {
+    private List<Battery> createBatteries(JSONObject json) throws JSONException {
         List<Battery> batteries = new ArrayList<>();
-        if(json!=null && json.length()>0){
-            for (int i = 0; i < json.length(); i++) {
-                JSONObject item = json.optJSONObject(i);
 
-                Battery battery = new Battery();
-                battery.setChemistry(this.getString(item,  "chemistry"));
-                battery.setHealth(this.getString(item,  "health"));
-                battery.setLevel(this.getString(item,  "level"));
-                battery.setStatus(this.getString(item,  "status"));
-                battery.setTemperature(this.getString(item,  "temperature"));
-                battery.setVoltage(this.getString(item,  "voltage"));
-                batteries.add(battery);
+        try {
+            JSONArray jsonArray = json.getJSONArray("batteries");
+
+            if(jsonArray!=null && jsonArray.length()>0){
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    JSONObject item = jsonArray.optJSONObject(i);
+
+                    Battery battery = new Battery();
+                    battery.setChemistry(this.getString(item,  "chemistry"));
+                    battery.setHealth(this.getString(item,  "health"));
+                    battery.setLevel(this.getString(item,  "level"));
+                    battery.setStatus(this.getString(item,  "status"));
+                    battery.setTemperature(this.getString(item,  "temperature"));
+                    battery.setVoltage(this.getString(item,  "voltage"));
+                    batteries.add(battery);
+                }
             }
+
+        } catch (JSONException ex) {
+            Log.e(Constants.LOG_TAG, "Batteries was not found in the JSON");
+            Battery battery = new Battery();
+            battery.setChemistry("Unknown");
+            battery.setHealth("Unknown");
+            battery.setLevel("Unknown");
+            battery.setStatus("Unknown");
+            battery.setTemperature("Unknown");
+            battery.setVoltage("Unknown");
+            batteries.add(battery);
         }
 
         return batteries;
@@ -173,7 +189,7 @@ public class Inventory {
                 }
             }
         } catch (JSONException ex) {
-            Log.i("CAMERA", "Camera was not found in the JSON");
+            Log.i(Constants.LOG_TAG, "Camera was not found in the JSON");
         }
 
 

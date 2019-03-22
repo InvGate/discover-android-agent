@@ -7,6 +7,7 @@
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"/>
     <uses-permission android:name="android.permission.READ_LOGS" />
 
     <uses-feature android:glEsVersion="0x00020000"></uses-feature>
@@ -46,6 +47,7 @@
         <service
             android:name="com.invgate.discover.androidagent.services.CronService"
             android:exported="true"
+            android:enabled="true"
             android:permission="com.google.android.gms.permission.BIND_NETWORK_TASK_SERVICE">
             <intent-filter>
                 <action android:name="com.google.android.gms.gcm.ACTION_TASK_READY" />
