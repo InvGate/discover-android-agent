@@ -1,7 +1,6 @@
 package com.invgate.discover.androidagent.services;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.util.Log;
@@ -47,7 +46,12 @@ public class CronService extends GcmTaskService {
         String apiurl = Preferences.Instance().getString("apiurl", "");
         Api.configure(apiurl);
 
-        inventoryTask = new InventoryTask(context, appVersion, false);
+        inventoryTask = new InventoryTask(context, appVersion, false) {
+            @Override
+            public String[] getCategories() {
+                return new String[]{"Hardware", "User", "Storage", "OperatingSystem", "Bios", "Memory", "Inputs", "Sensors", "Drives", "Cpus", "Simcards", "Videos", "Networks", "Envs", "Jvm", "Software", "Usb", "Battery", "Controllers", "Modems"};
+            }
+        };
         inventoryService = new Inventory();
     }
 

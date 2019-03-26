@@ -21,7 +21,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import io.reactivex.Observable;
@@ -177,16 +180,22 @@ public class Inventory {
         List<Camera> cameras = new ArrayList<>();
 
         try {
-            JSONArray jsonArray = json.getJSONArray("cameras");
+            if (json.has("cameras")) {
+                JSONArray jsonArray = json.getJSONArray("cameras");
 
-            if (jsonArray != null && jsonArray.length() > 0) {
-                for (int i = 0; i < jsonArray.length(); i++) {
-                    JSONObject item = jsonArray.optJSONObject(i);
+                if (jsonArray != null && jsonArray.length() > 0) {
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        JSONObject item = jsonArray.optJSONObject(i);
 
-                    Camera camera = new Camera();
-                    camera.setResolutions(this.getString(item, "resolutions"));
-                    cameras.add(camera);
+                        Camera camera = new Camera();
+                        camera.setResolutions(this.getString(item, "resolutions"));
+                        cameras.add(camera);
+                    }
                 }
+            } else {
+                Camera camera = new Camera();
+                camera.setResolutions("1x1");
+                cameras.add(camera);
             }
         } catch (JSONException ex) {
             Log.i(Constants.LOG_TAG, "Camera was not found in the JSON");
@@ -203,7 +212,7 @@ public class Inventory {
             for (int i = 0; i < json.length(); i++) {
                 JSONObject item = json.optJSONObject(i);
                 Cpu cpu = new Cpu();
-                cpu.setCpuCores(this.getDouble(item, "cpuCores"));
+                cpu.setCpuCores(this.getDouble(item, "core"));
                 cpu.setCpuFrequency(this.getDouble(item, "cpuFrequency"));
                 cpu.setName(this.getString(item, "name"));
                 cpus.add(cpu);
@@ -285,12 +294,22 @@ public class Inventory {
         if(json!=null && json.length()>0){
             for (int i = 0; i < json.length(); i++) {
                 JSONObject item = json.optJSONObject(i);
-                Software software = new Software();
-                software.setInstallDate(this.getString(item, "installDate"));
-                software.setManufacturer(this.getString(item, "from")); //TODO buscar otra forma
-                software.setName(this.getString(item, "name"));
-                software.setVersion(this.getString(item, "version"));
-                softwares.add(software);
+
+                try {
+                    Software software = new Software();
+
+                    String dateString = this.getString(item, "installDate");
+                    SimpleDateFormat df = new SimpleDateFormat("dd/mm/yyyy");
+                    String timestamp = Long.toString(((java.util.Date) df.parse(dateString)).getTime());
+
+                    software.setInstallDate(timestamp);
+                    software.setManufacturer(this.getString(item, "from")); //TODO buscar otra forma
+                    software.setName(this.getString(item, "name"));
+                    software.setVersion(this.getString(item, "version"));
+                    softwares.add(software);
+                } catch (ParseException ex) {
+                    Log.e(Constants.LOG_TAG, "Error parsing installation date", ex);
+                }
             }
         }
         return softwares;
