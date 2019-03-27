@@ -34,7 +34,7 @@ public class PermissionHelper {
         if (ActivityCompat.shouldShowRequestPermissionRationale(activity, permission)) {
 
         }
-        ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.CAMERA}, requestCode);
+        ActivityCompat.requestPermissions(activity, new String[]{permission}, requestCode);
     }
 
 

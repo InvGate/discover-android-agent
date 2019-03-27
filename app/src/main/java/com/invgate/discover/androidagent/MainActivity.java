@@ -33,7 +33,8 @@ public class MainActivity extends AppCompatActivity {
 
     private Long seconds = 1L;
     private PermissionHelper permissionHelper;
-    private int CAMERA_CODE = 1;
+    private static final int CAMERA_CODE = 1;
+    private static final int REQUEST_READ_PHONE_STATE_CODE = 2;
     private boolean appConfigured = false;
 
     @Override
@@ -52,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
         //Refresh your stuff here
         this.startApp();
     }
+
 
     @Override
     public void onBackPressed() {
@@ -81,6 +83,11 @@ public class MainActivity extends AppCompatActivity {
 
                 setButtonHandlers();
                 appConfigured = true;
+            }
+
+            if (!permissionHelper.permissionAlreadyGranted(Manifest.permission.READ_PHONE_STATE)) {
+                Log.i(Constants.LOG_TAG, "Requesting Read Phone State Permission");
+                permissionHelper.requestPermission(Manifest.permission.READ_PHONE_STATE, REQUEST_READ_PHONE_STATE_CODE);
             }
 
         } else {
@@ -191,15 +198,32 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
 
-        if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            Log.i(Constants.LOG_TAG, "Camera Permission Granted");
-            goToQrScanner();
-        } else {
-            boolean showRationale = shouldShowRequestPermissionRationale( Manifest.permission.CAMERA );
-            Log.d(Constants.LOG_TAG, "Should open settings dialog: " + !showRationale);
-            if (! showRationale) {
-                permissionHelper.openSettingsDialog();
-            }
+        switch (requestCode) {
+            case CAMERA_CODE:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Log.i(Constants.LOG_TAG, "Camera Permission Granted");
+                    goToQrScanner();
+                } else {
+                    boolean showRationale = shouldShowRequestPermissionRationale(Manifest.permission.CAMERA);
+                    Log.d(Constants.LOG_TAG, "Should open settings dialog: " + !showRationale);
+                    if (!showRationale) {
+                        permissionHelper.openSettingsDialog();
+                    }
+                }
+                break;
+
+            case REQUEST_READ_PHONE_STATE_CODE:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Log.i(Constants.LOG_TAG, "PHONE STATE Permission Granted");
+                } else {
+                    boolean showRationale = shouldShowRequestPermissionRationale(Manifest.permission.READ_PHONE_STATE);
+                    Log.d(Constants.LOG_TAG, "Should open settings dialog: " + !showRationale);
+                    if (!showRationale) {
+                        permissionHelper.openSettingsDialog();
+                    }
+                }
+                break;
+
         }
 
     }
