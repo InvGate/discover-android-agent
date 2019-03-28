@@ -52,7 +52,7 @@ public class CronService extends GcmTaskService {
                 return new String[]{"Hardware", "User", "Storage", "OperatingSystem", "Bios", "Memory", "Inputs", "Sensors", "Drives", "Cpus", "Simcards", "Videos", "Networks", "Envs", "Jvm", "Software", "Usb", "Battery", "Controllers", "Modems"};
             }
         };
-        inventoryService = new Inventory();
+        inventoryService = new Inventory(new InheritedMobileDevice(context));
     }
 
     /**

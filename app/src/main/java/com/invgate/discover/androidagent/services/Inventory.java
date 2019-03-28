@@ -33,9 +33,10 @@ import io.reactivex.schedulers.Schedulers;
 
 public class Inventory {
 
+    protected InheritedMobileDevice inheritedMobileDevice;
 
-    public Inventory() {
-
+    public Inventory(InheritedMobileDevice inheritedMobileDevice) {
+        this.inheritedMobileDevice = inheritedMobileDevice;
     }
 
     public Observable send(String data) {
@@ -60,7 +61,7 @@ public class Inventory {
         try {
             JSONObject json = new JSONObject(data);
 
-
+            inheritedMobileDevice.updateJsonData(json);
             InventoryModel inventoryModel = new InventoryModel();
             Request request = createRequest(json.getJSONObject("request"));
 
@@ -76,7 +77,7 @@ public class Inventory {
         Request request = new Request();
         request.setAgentId(Preferences.Instance().getString("uuid", ""));
         request.setDeviceId(json.getString("deviceId"));
-        request.setAgentVersion("0.0.1");
+        request.setAgentVersion(json.getString("versionClient"));
 
         long totalExternal = Storage.getTotalExternalMemorySize();
         long totalInternal = Storage.getTotalInternalMemorySize();
@@ -89,13 +90,15 @@ public class Inventory {
         request.setScreenSize(Double.parseDouble(screenSize));
         request.setContent(createContent(json.getJSONObject("content")));
 
-
         request.setTotalMemory(getTotalRam(json.getJSONObject("content").getJSONArray("memories")));
+
+        request.setCarrier(json.getString("carrier"));
+        request.setImei(json.getString("IMEI"));
 
         return request;
     }
 
-    private double getTotalRam(JSONArray json) throws JSONException {
+    private double getTotalRam(JSONArray json) {
         Double total = 0.0;
         if(json!=null && json.length()>0){
             for (int i = 0; i < json.length(); i++) {
