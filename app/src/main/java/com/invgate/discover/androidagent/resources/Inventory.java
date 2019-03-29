@@ -1,8 +1,8 @@
 
 package com.invgate.discover.androidagent.resources;
 
-import com.invgate.discover.androidagent.models.InventoryModel;
-import com.invgate.discover.androidagent.models.InventoryResponse;
+import com.invgate.discover.androidagent.models.request.InventoryModel;
+import com.invgate.discover.androidagent.models.request.InventoryResponse;
 
 import io.reactivex.Observable;
 import retrofit2.http.Body;

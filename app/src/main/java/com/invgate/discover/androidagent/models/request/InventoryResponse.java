@@ -1,4 +1,4 @@
-package com.invgate.discover.androidagent.models;
+package com.invgate.discover.androidagent.models.request;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;

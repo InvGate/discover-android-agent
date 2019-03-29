@@ -10,7 +10,7 @@ import com.google.android.gms.gcm.GcmNetworkManager;
 import com.google.android.gms.gcm.GcmTaskService;
 import com.google.android.gms.gcm.TaskParams;
 import com.invgate.discover.androidagent.R;
-import com.invgate.discover.androidagent.models.InventoryResponse;
+import com.invgate.discover.androidagent.models.request.InventoryResponse;
 import com.invgate.discover.androidagent.models.MainActivityModel;
 import com.invgate.discover.androidagent.utils.Constants;
 

@@ -29,6 +29,9 @@ import com.invgate.discover.androidagent.services.Api;
 import com.invgate.discover.androidagent.services.Preferences;
 import com.invgate.discover.androidagent.services.ServiceScheduler;
 
+import io.reactivex.Observable;
+import retrofit2.HttpException;
+
 public class MainActivity extends AppCompatActivity {
 
     private Long seconds = 1L;
@@ -75,27 +78,38 @@ public class MainActivity extends AppCompatActivity {
                 Log.i(Constants.LOG_TAG, "The app is configured");
                 if (!hasInventoryId()) {
                     Log.i(Constants.LOG_TAG, "The app has not the inventory id");
-                    createInventoryIdAndSchedule();
+                    createInventoryId().subscribe(
+                        n -> this.startFirstSchedule(),
+                        e -> this.setConfigActivity()
+                    );
                 } else {
                     Log.i(Constants.LOG_TAG, "The app has the inventory id");
-                    ServiceScheduler.schedule(seconds, this);
+                    this.startFirstSchedule();
                 }
-
-                setButtonHandlers();
-                appConfigured = true;
             }
 
-            if (!permissionHelper.permissionAlreadyGranted(Manifest.permission.READ_PHONE_STATE)) {
-                Log.i(Constants.LOG_TAG, "Requesting Read Phone State Permission");
-                permissionHelper.requestPermission(Manifest.permission.READ_PHONE_STATE, REQUEST_READ_PHONE_STATE_CODE);
-            }
 
         } else {
-            Log.i(Constants.LOG_TAG, "The app is not configured yet");
-            setContentView(R.layout.activity_config);
-            findViewById(R.id.qrScanBtn).setOnClickListener((View v) -> goToQrScanner());
+            this.setConfigActivity();
         }
 
+    }
+
+    protected void startFirstSchedule() {
+        setButtonHandlers();
+        appConfigured = true;
+        ServiceScheduler.schedule(seconds, this);
+
+        if (!permissionHelper.permissionAlreadyGranted(Manifest.permission.READ_PHONE_STATE)) {
+            Log.i(Constants.LOG_TAG, "Requesting Read Phone State Permission");
+            permissionHelper.requestPermission(Manifest.permission.READ_PHONE_STATE, REQUEST_READ_PHONE_STATE_CODE);
+        }
+    }
+
+    protected void setConfigActivity() {
+        Log.i(Constants.LOG_TAG, "The app is not configured yet");
+        setContentView(R.layout.activity_config);
+        findViewById(R.id.qrScanBtn).setOnClickListener((View v) -> goToQrScanner());
     }
 
     protected void setBindingModel() {
@@ -132,7 +146,7 @@ public class MainActivity extends AppCompatActivity {
                 sendInventoryBtn.setEnabled(true);
                 Log.e(Constants.LOG_TAG, "Error forcing send inventory");
                 String message = getString(R.string.error_sending_inventory);
-                Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
             });
         });
 
@@ -231,17 +245,32 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Creates the inventory ID, saving and scheduling the service
      */
-    protected void createInventoryIdAndSchedule() {
+    protected Observable createInventoryId() {
         Log.i(Constants.LOG_TAG, "Creating the inventory id");
         Agent agentService = new Agent(this);
-        agentService.create().subscribe(
-            uuid -> saveInventoryId(uuid),
-            e -> {
-                Log.e(Constants.LOG_TAG, "Error saving inventory id", e);
-                String message = getString(R.string.error_saving_inventory_id);
-                Toast.makeText(this, message, Toast.LENGTH_LONG).show();
-            }
-        );
+
+        Observable observable = Observable.create(emitter -> {
+            agentService.create().subscribe(
+                uuid -> {
+                    this.saveInventoryId(uuid);
+                    String message = getString(R.string.qr_scanned_ok);
+                    Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+                    emitter.onNext("");
+                },
+                (Throwable e) -> {
+                    String message = getString(R.string.error_saving_inventory_id);
+                    int code = ((HttpException) e).code();
+                    if ((code == 401) || (code == 403)) {
+                        message = getString(R.string.qr_code_expired);
+                    }
+                    Log.e(Constants.LOG_TAG, message, e);
+                    Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+                    emitter.onError(e);
+                }
+            );
+        });
+
+        return observable;
     }
 
     /**
@@ -254,8 +283,6 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences.Editor edit = Preferences.Instance().edit();
         edit.putString("uuid", uuid);
         edit.commit();
-
-        ServiceScheduler.schedule(seconds, this);
     }
 
 
