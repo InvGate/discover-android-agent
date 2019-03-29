@@ -69,6 +69,22 @@ public class Content {
     @SerializedName("softwares")
     @Expose
     private List<Software> softwares = null;
+    /**
+     *
+     * (Required)
+     *
+     */
+    @SerializedName("carrier")
+    @Expose
+    private String carrier;
+    /**
+     *
+     * (Required)
+     *
+     */
+    @SerializedName("imei")
+    @Expose
+    private String imei;
 
     /**
      * 
@@ -211,5 +227,36 @@ public class Content {
     public void setSoftwares(List<Software> softwares) {
         this.softwares = softwares;
     }
+
+    /**
+     *
+     * (Required)
+     *
+     */
+    public String getCarrier() {
+        return carrier;
+    }
+
+    /**
+     *
+     * (Required)
+     *
+     */
+    public void setCarrier(String carrier) { this.carrier = carrier; }
+    /**
+     *
+     * (Required)
+     *
+     */
+    public String getImei() {
+        return imei;
+    }
+
+    /**
+     *
+     * (Required)
+     *
+     */
+    public void setImei(String imei) { this.imei = imei; }
 
 }

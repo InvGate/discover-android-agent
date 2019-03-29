@@ -2,6 +2,7 @@ package com.invgate.discover.androidagent.services;
 
 import android.util.Log;
 
+import com.google.gson.Gson;
 import com.invgate.discover.androidagent.models.Battery;
 import com.invgate.discover.androidagent.models.Bios;
 import com.invgate.discover.androidagent.models.Camera;
@@ -47,6 +48,8 @@ public class Inventory {
 
         InventoryModel inventoryModel = prepareData(data);
         if (inventoryModel != null) {
+            Gson gson = new Gson();
+            Log.d(Constants.LOG_TAG, "Inventory model string result: " + gson.toJson(inventoryModel));
             Observable<InventoryResponse> inventoryObs = inventory.send(inventoryModel);
             return inventoryObs.subscribeOn(Schedulers.newThread())
                     .observeOn(AndroidSchedulers.mainThread());
@@ -88,12 +91,13 @@ public class Inventory {
         request.setTotalStorage((double) totalExternal + totalInternal);
         String screenSize = Preferences.Instance().getString("screen_size", "").replaceAll(",", ".");
         request.setScreenSize(Double.parseDouble(screenSize));
-        request.setContent(createContent(json.getJSONObject("content")));
+
+        // The IMEI is in request, but needs to be sended in content
+        Content content = createContent(json.getJSONObject("content"));
+        content.setImei(json.getString("IMEI"));
+        request.setContent(content);
 
         request.setTotalMemory(getTotalRam(json.getJSONObject("content").getJSONArray("memories")));
-
-        request.setCarrier(json.getString("carrier"));
-        request.setImei(json.getString("IMEI"));
 
         return request;
     }
@@ -120,6 +124,7 @@ public class Inventory {
         content.setOperatingSystem(createOperatingSystems(json));
         content.setSoftwares(createSoftwares(json.getJSONArray("softwares")));
         content.setVideos(createVideos(json.getJSONArray("videos")));
+        content.setCarrier(json.getString("carrier"));
 
         return content;
     }

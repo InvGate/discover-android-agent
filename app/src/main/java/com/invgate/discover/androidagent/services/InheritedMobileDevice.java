@@ -19,19 +19,18 @@ public class InheritedMobileDevice {
 
     public void updateJsonData(JSONObject data) {
         try {
-            JSONObject request = data.getJSONObject("request");
+            JSONObject content = data.getJSONObject("request").getJSONObject("content");
 
-            setCarrier(request);
+            setCarrier(content);
 
         } catch (JSONException ex) {
             Log.e(Constants.LOG_TAG, "Error setting carrier in json", ex);
         }
     }
 
-    private void setCarrier(JSONObject request) throws JSONException {
+    private void setCarrier(JSONObject content) throws JSONException {
         TelephonyManager manager = (TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
         String carrierName = manager.getNetworkOperatorName();
-        request.put("carrier", carrierName);
-        Log.d(Constants.LOG_TAG, "Carrier Name " + carrierName);
+        content.put("carrier", carrierName);
     }
 }

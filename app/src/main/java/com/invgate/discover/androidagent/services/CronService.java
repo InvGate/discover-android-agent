@@ -91,7 +91,6 @@ public class CronService extends GcmTaskService {
             inventoryTask.getJSON(new InventoryTask.OnTaskCompleted() {
                 @Override
                 public void onTaskSuccess(String data) {
-                    Log.d(Constants.LOG_TAG, "Inventory string result: " + data);
 
                     inventoryService.send(data).subscribe(
                         dataObj -> {
