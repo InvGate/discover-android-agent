@@ -9,8 +9,8 @@ import com.invgate.discover.androidagent.models.Camera;
 import com.invgate.discover.androidagent.models.Content;
 import com.invgate.discover.androidagent.models.Cpu;
 import com.invgate.discover.androidagent.models.Hardware;
-import com.invgate.discover.androidagent.models.InventoryModel;
-import com.invgate.discover.androidagent.models.InventoryResponse;
+import com.invgate.discover.androidagent.models.request.InventoryModel;
+import com.invgate.discover.androidagent.models.request.InventoryResponse;
 import com.invgate.discover.androidagent.models.Network;
 import com.invgate.discover.androidagent.models.OperatingSystem;
 import com.invgate.discover.androidagent.models.Request;
@@ -25,7 +25,6 @@ import org.json.JSONObject;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import io.reactivex.Observable;

@@ -10,6 +10,7 @@
     <string name="error_log_file_name">error_log</string>
     <string name="error_log_file_ext">txt</string>
     <string name="error_json_qr">Invalid QR Code format</string>
+    <string name="qr_code_expired">QR code has expired. Generate and scan a new one</string>
     <string name="error_saving_inventory_id">Error saving inventory id. Please report errors</string>
     <string name="error_sending_inventory">Error sending the inventory. Check error logs</string>
     <string name="qr_scanned_ok">The device is now connected</string>

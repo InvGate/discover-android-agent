@@ -47,24 +47,25 @@ public class QrScannerActivity extends AppCompatActivity implements ZXingScanner
         String token = rawResult.getText();
         Log.d(Constants.LOG_TAG, "Qr scan result: " + token); // Prints scan results
 
-        String message = "";
+
         try {
             JSONObject json = new JSONObject(token);
             String url = json.getString("url");
+            String invToken = json.getString("token");
             SharedPreferences.Editor editor = Preferences.Instance().edit();
             editor.putString("apiurl", url);
+            editor.putString("invToken", invToken);
             editor.commit();
             Api.configure(url);
             MainActivityModel.Instance().setInstanceUrl(url);
 
-            message = getString(R.string.qr_scanned_ok);
-
         } catch (JSONException ex) {
-            message = getString(R.string.error_json_qr);
-            Log.e(Constants.LOG_TAG, "Error loading QR code", ex);
+            String message = getString(R.string.error_json_qr);
+            Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+            Log.e(Constants.LOG_TAG, message, ex);
 
         } finally {
-            Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+
             onBackPressed();
         }
     }

@@ -2,6 +2,7 @@ package com.invgate.discover.androidagent.services;
 
 import android.content.Context;
 import com.invgate.discover.androidagent.models.AgentModel;
+import com.invgate.discover.androidagent.models.request.AgentMobileModel;
 import com.invgate.discover.androidagent.resources.AgentResource;
 
 import io.reactivex.Observable;
@@ -24,8 +25,13 @@ public class Agent {
      */
     public Observable<String> create() {
 
+        // Sets access token in the body
+        String invToken = Preferences.Instance().getString("invToken", null);
+        AgentMobileModel agentMobileModel = new AgentMobileModel();
+        agentMobileModel.setAccessToken(invToken);
+
         // Create a call instance for looking up Retrofit contributors.
-        Observable<AgentModel> agentObs = agentResource.create();
+        Observable<AgentModel> agentObs = agentResource.create(agentMobileModel);
         return agentObs.subscribeOn(Schedulers.newThread())
                        .observeOn(AndroidSchedulers.mainThread())
                        .map(agent -> agent.getUuid());
