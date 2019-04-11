@@ -55,6 +55,11 @@ public class QrScannerActivity extends AppCompatActivity implements ZXingScanner
             SharedPreferences.Editor editor = Preferences.Instance().edit();
             editor.putString("apiurl", url);
             editor.putString("invToken", invToken);
+
+            if (json.has("cloud_url")) {
+                editor.putString("cloud_url", json.getString("cloud_url"));
+            }
+
             editor.commit();
             Api.configure(url);
             MainActivityModel.Instance().setInstanceUrl(url);
