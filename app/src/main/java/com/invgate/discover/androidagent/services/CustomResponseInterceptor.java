@@ -1,26 +1,18 @@
 package com.invgate.discover.androidagent.services;
 
 import android.content.SharedPreferences;
+import android.util.Log;
 
-import org.json.JSONException;
+import com.invgate.discover.androidagent.utils.Constants;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.UnknownHostException;
-import java.util.regex.Pattern;
-
-import okhttp3.HttpUrl;
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
 
 public class CustomResponseInterceptor implements Interceptor {
-
-    private static String newToken;
-    private String bodyString;
-
-    private final String TAG = getClass().getSimpleName();
 
     @Override
     public Response intercept(Chain chain) throws IOException {
@@ -28,12 +20,13 @@ public class CustomResponseInterceptor implements Interceptor {
         try {
             Response response = chain.proceed(request);
             return response;
-        } catch (UnknownHostException ex) {
+        } catch (Exception ex) {
+
+            Log.i(Constants.LOG_TAG, "Proxy url error. Using cloud url");
             SharedPreferences preferences = Preferences.Instance();
             String cloudUrl = preferences.getString("cloud_url", "");
 
             if (!cloudUrl.isEmpty()) {
-                String apiUrl = preferences.getString("apiurl", "");
                 Response r = retryWithCloudUrl(request, chain, cloudUrl);
                 return r;
             }
@@ -47,6 +40,9 @@ public class CustomResponseInterceptor implements Interceptor {
 
         String fullUrl = req.url().toString();
         String newUrl = replaceHostInUrl(fullUrl, cloudUrl);
+
+        Log.d(Constants.LOG_TAG, "Proxy url: " + fullUrl);
+        Log.d(Constants.LOG_TAG, "Proxy cloud url: " + newUrl);
 
         Request newRequest;
         newRequest = req.newBuilder().url(newUrl).build();
