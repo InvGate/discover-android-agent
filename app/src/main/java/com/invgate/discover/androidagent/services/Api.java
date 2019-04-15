@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.invgate.discover.androidagent.utils.Constants;
 
+import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -38,8 +39,13 @@ public class Api {
 
     public void buildRetrofit() {
         // Create a very simple REST adapter
+
+        CustomResponseInterceptor interceptor = new CustomResponseInterceptor();
+        OkHttpClient client = new OkHttpClient.Builder().addInterceptor(interceptor).build();
+
         retrofit = new Retrofit.Builder()
                 .baseUrl(baseURL)
+                .client(client)
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
