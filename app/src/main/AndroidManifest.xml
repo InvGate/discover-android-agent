@@ -44,16 +44,10 @@
             </intent-filter>
         </receiver>
 
-        <service
-            android:name="com.invgate.discover.androidagent.services.CronService"
-            android:exported="true"
-            android:enabled="true"
-            android:permission="com.google.android.gms.permission.BIND_NETWORK_TASK_SERVICE">
-            <intent-filter>
-                <action android:name="com.google.android.gms.gcm.ACTION_TASK_READY" />
-            </intent-filter>
-        </service>
 
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="f774d36ec89db7f700ed6ea9829e12df774163b9" />
     </application>
 
 </manifest>

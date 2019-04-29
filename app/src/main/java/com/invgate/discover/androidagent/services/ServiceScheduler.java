@@ -1,30 +1,60 @@
 package com.invgate.discover.androidagent.services;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
+import android.util.Log;
+import com.invgate.discover.androidagent.models.request.InventoryResponse;
+import com.invgate.discover.androidagent.utils.Constants;
 
-import com.google.android.gms.gcm.GcmNetworkManager;
-import com.google.android.gms.gcm.PeriodicTask;
-import com.google.android.gms.gcm.Task;
+import java.util.concurrent.TimeUnit;
 
-public class ServiceScheduler {
+import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.ListenableWorker;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
+import androidx.work.Worker;
+import androidx.work.WorkerParameters;
+
+public class ServiceScheduler extends Worker {
     private static final String TAG = "inventory-service";
+    public static Long intervalTime = 3600L;
 
-    public static void schedule(Long seconds, Context context) {
+    public ServiceScheduler(@NonNull Context context, @NonNull WorkerParameters workerParams) {
+        super(context, workerParams);
+    }
 
-        GcmNetworkManager gcmNetworkManager = GcmNetworkManager.getInstance(context);
+    @NonNull
+    @Override
+    public ListenableWorker.Result doWork() {
 
-        // First cancel a previuos taks
-        // gcmNetworkManager.cancelTask(ServiceScheduler.TAG, CronService.class);
+        Log.i(Constants.LOG_TAG, "Running scheduled send inventory");
 
-        PeriodicTask myTask = new PeriodicTask.Builder()
-                .setService(CronService.class)
-                .setPeriod(seconds)
-                .setTag(ServiceScheduler.TAG)
-                .setUpdateCurrent(true)
-                .setPersisted(true) // To be executed on start up and kill app
-                // .setRequiredNetwork(Task.NETWORK_STATE_CONNECTED) // Only with internet connection
-                .build();
+        CronService cronService = new CronService();
 
-        gcmNetworkManager.schedule(myTask);
+        cronService.sendInventory(this.getApplicationContext()).subscribe(response -> {
+            InventoryResponse inventoryResponse = (InventoryResponse) response;
+            Long interval = inventoryResponse.getInventoryInterval();
+            Log.d(Constants.LOG_TAG, "Scheduling in " + interval.toString() + " seconds");
+
+            if (interval.compareTo(intervalTime) != 0) {
+                intervalTime = interval;
+                ServiceScheduler.schedule();
+            }
+        }, error -> {
+            // We showed a toast message but it was very annoying
+        });
+        return ListenableWorker.Result.success();
+    }
+
+
+    public static void schedule() {
+
+        final PeriodicWorkRequest periodicWorkRequest = new PeriodicWorkRequest.Builder(ServiceScheduler.class, intervalTime, TimeUnit.SECONDS)
+                        .addTag(ServiceScheduler.TAG)
+                        .build();
+
+        WorkManager.getInstance().enqueueUniquePeriodicWork(
+                ServiceScheduler.TAG,  ExistingPeriodicWorkPolicy.REPLACE, periodicWorkRequest
+        );
     }
 }

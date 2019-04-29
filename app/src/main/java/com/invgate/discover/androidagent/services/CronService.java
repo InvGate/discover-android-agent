@@ -4,11 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.util.Log;
-import android.widget.Toast;
 
-import com.google.android.gms.gcm.GcmNetworkManager;
-import com.google.android.gms.gcm.GcmTaskService;
-import com.google.android.gms.gcm.TaskParams;
 import com.invgate.discover.androidagent.R;
 import com.invgate.discover.androidagent.models.request.InventoryResponse;
 import com.invgate.discover.androidagent.models.MainActivityModel;
@@ -18,10 +14,10 @@ import org.flyve.inventory.InventoryTask;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
 import io.reactivex.Observable;
+import retrofit2.HttpException;
 
-public class CronService extends GcmTaskService {
+public class CronService {
 
 
     public static InventoryTask inventoryTask;
@@ -55,31 +51,6 @@ public class CronService extends GcmTaskService {
         inventoryService = new Inventory(new InheritedMobileDevice(context));
     }
 
-    /**
-     * This will be invoked in the configured scheduler period, getting the inventory and sending to the API
-     * @param params Task Params
-     * @return Network Manager Result
-     */
-    @Override
-    public int onRunTask(TaskParams params) {
-
-        Log.i(Constants.LOG_TAG, "Running scheduled send inventory");
-
-        Context context = getApplicationContext();
-
-        this.sendInventory(context).subscribe(response -> {
-            InventoryResponse inventoryResponse = (InventoryResponse) response;
-            Long interval = inventoryResponse.getInventoryInterval();
-            Log.d(Constants.LOG_TAG, "Scheduling in " + interval.toString() + " seconds");
-            ServiceScheduler.schedule(interval, context);
-        }, error -> {
-            String message = getString(R.string.error_sending_inventory);
-            Toast.makeText(this, message, Toast.LENGTH_LONG).show();
-        });
-
-        return GcmNetworkManager.RESULT_SUCCESS;
-
-    }
 
     public Observable sendInventory(Context context) {
         if (inventoryTask == null) {
@@ -101,7 +72,7 @@ public class CronService extends GcmTaskService {
                         },
                         e -> {
                             String errorMsg = context.getString(R.string.error_sending_inventory);
-                            Log.e(Constants.LOG_TAG, errorMsg, (Throwable) e);
+                            Log.e(Constants.LOG_TAG, errorMsg + ". Response: " + ((HttpException)e).response().errorBody().string(), (Throwable) e);
                             emitter.onError((Throwable) e);
                         }
 
