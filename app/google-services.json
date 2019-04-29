@@ -1,0 +1,69 @@
+{
+  "project_info": {
+    "project_number": "333564549377",
+    "firebase_url": "https://invgate-mobile-agent.firebaseio.com",
+    "project_id": "invgate-mobile-agent",
+    "storage_bucket": "invgate-mobile-agent.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:333564549377:android:3621bb27f7aa291c",
+        "android_client_info": {
+          "package_name": "com.invgate.insight.agent"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "333564549377-4r42k9q21f9rp46mr0tq9oiqolptrm8d.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAfzr_6njdQS1jZQ-F8DvuLY2NkYRfBdFc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "333564549377-4r42k9q21f9rp46mr0tq9oiqolptrm8d.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:333564549377:android:1d1bb5ed1e6dd413",
+        "android_client_info": {
+          "package_name": "com.invgate.insight.agent"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "333564549377-4r42k9q21f9rp46mr0tq9oiqolptrm8d.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAfzr_6njdQS1jZQ-F8DvuLY2NkYRfBdFc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "333564549377-4r42k9q21f9rp46mr0tq9oiqolptrm8d.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

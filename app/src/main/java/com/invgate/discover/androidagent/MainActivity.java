@@ -18,6 +18,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.crashlytics.android.Crashlytics;
 import com.invgate.discover.androidagent.databinding.ActivityMainBinding;
 import com.invgate.discover.androidagent.models.MainActivityModel;
 import com.invgate.discover.androidagent.services.CronService;
@@ -29,12 +30,13 @@ import com.invgate.discover.androidagent.services.Api;
 import com.invgate.discover.androidagent.services.Preferences;
 import com.invgate.discover.androidagent.services.ServiceScheduler;
 
+import io.fabric.sdk.android.Fabric;
 import io.reactivex.Observable;
 import retrofit2.HttpException;
 
 public class MainActivity extends AppCompatActivity {
 
-    private Long seconds = 1L;
+    private Long seconds = 31L;
     private PermissionHelper permissionHelper;
     private static final int CAMERA_CODE = 1;
     private static final int REQUEST_READ_PHONE_STATE_CODE = 2;
@@ -44,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
+        Fabric.with(this, new Crashlytics());
         Preferences.configure(this);
         configureScreenSize();
         this.permissionHelper = new PermissionHelper(this);
@@ -98,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
     protected void startFirstSchedule() {
         setButtonHandlers();
         appConfigured = true;
-        ServiceScheduler.schedule(seconds, this);
+        ServiceScheduler.schedule();
 
         if (!permissionHelper.permissionAlreadyGranted(Manifest.permission.READ_PHONE_STATE)) {
             Log.i(Constants.LOG_TAG, "Requesting Read Phone State Permission");
