@@ -15,7 +15,6 @@ import org.flyve.inventory.InventoryTask;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import io.reactivex.Observable;
-import retrofit2.HttpException;
 
 public class CronService {
 
@@ -72,7 +71,7 @@ public class CronService {
                         },
                         e -> {
                             String errorMsg = context.getString(R.string.error_sending_inventory);
-                            Log.e(Constants.LOG_TAG, errorMsg + ". Response: " + ((HttpException)e).response().errorBody().string(), (Throwable) e);
+                            Log.e(Constants.LOG_TAG, errorMsg + ". Response: " + ((Exception)e).getMessage(), (Throwable) e);
                             emitter.onError((Throwable) e);
                         }
 
