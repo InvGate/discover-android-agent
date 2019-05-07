@@ -30,10 +30,12 @@ public class Storage {
 
     public static long getAvailableExternalMemorySize() {
         String secStore = System.getenv("SECONDARY_STORAGE");
-        if (secStore.contains(":")) {
-            secStore = "/storage";
-        }
         if (externalMemoryAvailable() && secStore != null) {
+
+            if (secStore.contains(":")) {
+                secStore = "/storage";
+            }
+
             File path = new File(secStore);
             StatFs stat = new StatFs(path.getPath());
             long blockSize = stat.getBlockSizeLong();
@@ -46,10 +48,12 @@ public class Storage {
 
     public static long getTotalExternalMemorySize() {
         String secStore = System.getenv("SECONDARY_STORAGE");
-        if (secStore.contains(":")) {
-            secStore = "/storage";
-        }
         if (externalMemoryAvailable() && secStore != null) {
+
+            if (secStore.contains(":")) {
+                secStore = "/storage";
+            }
+
             File path = new File(secStore);
             StatFs stat = new StatFs(path.getPath());
             long blockSize = stat.getBlockSizeLong();
