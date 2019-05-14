@@ -262,9 +262,11 @@ public class MainActivity extends AppCompatActivity {
                 },
                 (Throwable e) -> {
                     String message = getString(R.string.error_saving_inventory_id);
-                    int code = ((HttpException) e).code();
-                    if ((code == 401) || (code == 403)) {
-                        message = getString(R.string.qr_code_expired);
+                    if (e instanceof HttpException) {
+                        int code = ((HttpException) e).code();
+                        if ((code == 401) || (code == 403)) {
+                            message = getString(R.string.qr_code_expired);
+                        }
                     }
                     Log.e(Constants.LOG_TAG, message, e);
                     Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();

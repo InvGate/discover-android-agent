@@ -11,7 +11,8 @@ public class OnStartReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (Intent.ACTION_MY_PACKAGE_REPLACED.equals(intent.getAction())) {
+        if (Intent.ACTION_MY_PACKAGE_REPLACED.equals(intent.getAction()) ||
+            Intent.ACTION_PACKAGE_REPLACED.equals(intent.getAction())    ) {
             Log.i(Constants.LOG_TAG, "App was updated. Scheduling inventory again");
             ServiceScheduler.schedule();
         }
