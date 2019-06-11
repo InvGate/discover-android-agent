@@ -93,7 +93,9 @@ public class Inventory {
 
         // The IMEI is in request, but needs to be sended in content
         Content content = createContent(json.getJSONObject("content"));
-        content.setImei(json.getString("IMEI"));
+        if (json.has("IMEI")) {
+            content.setImei(json.getString("IMEI"));
+        }
         request.setContent(content);
 
         request.setTotalMemory(getTotalRam(json.getJSONObject("content").getJSONArray("memories")));
