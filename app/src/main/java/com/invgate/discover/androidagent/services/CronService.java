@@ -44,7 +44,7 @@ public class CronService {
         inventoryTask = new InventoryTask(context, appVersion, false) {
             @Override
             public String[] getCategories() {
-                return new String[]{"Hardware", "User", "Storage", "OperatingSystem", "Bios", "Memory", "Inputs", "Sensors", "Drives", "Cpus", "Simcards", "Videos", "Networks", "Envs", "Jvm", "Software", "Usb", "Battery", "Controllers", "Modems"};
+                return new String[]{"Hardware", "User", "Storage", "OperatingSystem", "Bios", "Memory", "Inputs", "Sensors", "Drives", "Cpus", "Simcards", "Videos", "Networks", "Envs", "Jvm", "Software", "Battery", "Controllers", "Modems"};
             }
         };
         inventoryService = new Inventory(new InheritedMobileDevice(context));
