@@ -78,7 +78,11 @@ public class Inventory {
     private Request createRequest(JSONObject json) throws JSONException {
         Request request = new Request();
         request.setAgentId(Preferences.Instance().getString("uuid", ""));
-        request.setDeviceId(json.getString("deviceId"));
+
+        JSONObject item = json.getJSONObject("content").getJSONArray("bios").optJSONObject(0);
+
+
+        request.setDeviceId(this.getString(item,"systemSerialNumber"));
         request.setAgentVersion(json.getString("versionClient"));
 
         long totalExternal = Storage.getTotalExternalMemorySize();
