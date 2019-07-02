@@ -268,7 +268,7 @@ public class Inventory {
 
         List<OperatingSystem> operatingSystems = new ArrayList<>();
 
-        if (json.has("operativeSystem")) {
+        if (json.has("operatingSystem")) {
             JSONArray jsonItems = json.getJSONArray("operatingSystem");
 
             if(jsonItems!=null && jsonItems.length()>0){
