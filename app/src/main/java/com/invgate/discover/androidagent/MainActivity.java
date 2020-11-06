@@ -4,13 +4,11 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.databinding.DataBindingUtil;
+import androidx.databinding.DataBindingUtil;
 import android.os.Build;
-import android.support.annotation.NonNull;
-import android.support.annotation.RequiresApi;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -18,7 +16,6 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.crashlytics.android.Crashlytics;
 import com.invgate.discover.androidagent.databinding.ActivityMainBinding;
 import com.invgate.discover.androidagent.models.MainActivityModel;
 import com.invgate.discover.androidagent.services.CronService;
@@ -30,7 +27,6 @@ import com.invgate.discover.androidagent.services.Api;
 import com.invgate.discover.androidagent.services.Preferences;
 import com.invgate.discover.androidagent.services.ServiceScheduler;
 
-import io.fabric.sdk.android.Fabric;
 import io.reactivex.Observable;
 import retrofit2.HttpException;
 
@@ -46,7 +42,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        Fabric.with(this, new Crashlytics());
         Preferences.configure(this);
         configureScreenSize();
         this.permissionHelper = new PermissionHelper(this);

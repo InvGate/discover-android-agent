@@ -1,7 +1,7 @@
 package com.invgate.discover.androidagent.services;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.util.Log;
 import com.invgate.discover.androidagent.models.request.InventoryResponse;
 import com.invgate.discover.androidagent.utils.Constants;
@@ -40,8 +40,6 @@ public class ServiceScheduler extends Worker {
                 intervalTime = interval;
                 ServiceScheduler.schedule();
             }
-        }, error -> {
-            // We showed a toast message but it was very annoying
         });
         return ListenableWorker.Result.success();
     }
