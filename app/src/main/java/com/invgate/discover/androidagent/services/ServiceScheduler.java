@@ -40,6 +40,8 @@ public class ServiceScheduler extends Worker {
                 intervalTime = interval;
                 ServiceScheduler.schedule();
             }
+        }, error -> {
+            Log.e(Constants.LOG_TAG, "Error sending inventory scheduled");
         });
         return ListenableWorker.Result.success();
     }

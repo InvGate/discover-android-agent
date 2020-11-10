@@ -5,18 +5,18 @@ apply plugin: 'com.google.firebase.crashlytics'
 
 def versionMajor = 1
 def versionMinor = 0
-def versionPatch = 24
+def versionPatch = 25
 def versionBuild = 0 // bump for dogfood builds, public betas, etc.
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 29
     dataBinding {
         enabled true
     }
     defaultConfig {
         applicationId "com.invgate.insight.agent"
         minSdkVersion 18
-        targetSdkVersion 28
+        targetSdkVersion 29
         versionCode versionMajor * 10000 + versionMinor * 1000 + versionPatch * 100 + versionBuild
         versionName "${versionMajor}.${versionMinor}.${versionPatch}"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
