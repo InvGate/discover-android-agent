@@ -9,17 +9,18 @@ def versionPatch = 26
 def versionBuild = 0 // bump for dogfood builds, public betas, etc.
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 30
     dataBinding {
         enabled true
     }
     defaultConfig {
         applicationId "com.invgate.insight.agent"
         minSdkVersion 18
-        targetSdkVersion 29
+        targetSdkVersion 30
         versionCode versionMajor * 10000 + versionMinor * 1000 + versionPatch * 100 + versionBuild
         versionName "${versionMajor}.${versionMinor}.${versionPatch}"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        multiDexEnabled true
 
         vectorDrawables {
             useSupportLibrary = true
@@ -50,13 +51,15 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
-    implementation 'androidx.appcompat:appcompat:1.0.0'
+    implementation 'androidx.appcompat:appcompat:1.3.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
     testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test:runner:1.1.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0'
+    androidTestImplementation 'androidx.test:runner:1.3.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 
     // implementation 'org.flyve:inventory:0.12.0'
+
+    implementation 'com.android.support:multidex:1.0.3'
 
     implementation 'com.squareup.retrofit2:retrofit:2.4.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.4.0'
@@ -71,20 +74,20 @@ dependencies {
 // (see https://github.com/ReactiveX/RxJava/releases for latest 2.x.x version)
     implementation 'io.reactivex.rxjava2:rxjava:2.x.x'
 
-    implementation 'com.google.android.gms:play-services-base:16.1.0'
+    implementation 'com.google.android.gms:play-services-base:17.6.0'
 
-    implementation 'com.google.android.material:material:1.0.0'
+    implementation 'com.google.android.material:material:1.3.0'
     implementation 'androidx.cardview:cardview:1.0.0'
 
-    implementation 'androidx.lifecycle:lifecycle-livedata:2.0.0'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel:2.0.0'
+    implementation 'androidx.lifecycle:lifecycle-livedata:2.3.1'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel:2.3.1'
 
     implementation 'com.orhanobut:logger:2.1.1'
 
     implementation 'androidx.work:work-runtime:2.0.1'
 
-    implementation 'com.google.firebase:firebase-core:18.0.0'
+    implementation 'com.google.firebase:firebase-core:19.0.0'
 
-    implementation 'com.google.firebase:firebase-crashlytics:17.2.2'
+    implementation 'com.google.firebase:firebase-crashlytics:18.0.1'
 
 }
