@@ -28,12 +28,8 @@ public class PermissionHelper {
         return false;
     }
 
-    public void requestPermission(String permission, int requestCode) {
-
-        if (ActivityCompat.shouldShowRequestPermissionRationale(activity, permission)) {
-
-        }
-        ActivityCompat.requestPermissions(activity, new String[]{permission}, requestCode);
+    public void requestPermission(String[] permissions, int requestCode) {
+        ActivityCompat.requestPermissions(activity, permissions, requestCode);
     }
 
 

@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+
 import androidx.databinding.DataBindingUtil;
 import android.os.Build;
 import androidx.annotation.NonNull;
@@ -27,15 +28,28 @@ import com.invgate.discover.androidagent.services.Api;
 import com.invgate.discover.androidagent.services.Preferences;
 import com.invgate.discover.androidagent.services.ServiceScheduler;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
 import io.reactivex.Observable;
 import retrofit2.HttpException;
 
 public class MainActivity extends AppCompatActivity {
 
-    private Long seconds = 31L;
     private PermissionHelper permissionHelper;
     private static final int CAMERA_CODE = 1;
-    private static final int REQUEST_READ_PHONE_STATE_CODE = 2;
+    private static final int READ_PHONE_STATE_CODE = 2;
+    private static final int READ_PHONE_NUMBERS_CODE = 3;
+
+    private static final Map<Integer, String> permissionCodesMap = new HashMap<Integer, String>() {{
+        put(CAMERA_CODE, Manifest.permission.CAMERA);
+        put(READ_PHONE_STATE_CODE, Manifest.permission.READ_PHONE_STATE);
+        if (Build.VERSION.SDK_INT > 26) {
+            put(READ_PHONE_NUMBERS_CODE, Manifest.permission.READ_PHONE_NUMBERS);
+        }
+    }};
+
     private boolean appConfigured = false;
 
     @Override
@@ -59,6 +73,41 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         this.moveTaskToBack(false);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            Log.i(Constants.LOG_TAG, "Permission Granted " + permissions[0]);
+
+        } else {
+            boolean showRationale = shouldShowRequestPermissionRationale(permissionCodesMap.get(requestCode));
+            Log.d(Constants.LOG_TAG, "Should open settings dialog: " + !showRationale);
+            if (!showRationale) {
+                permissionHelper.openSettingsDialog();
+            }
+        }
+    }
+
+    protected void checkPermissions() {
+        if (
+            !permissionHelper.permissionAlreadyGranted(permissionCodesMap.get(READ_PHONE_STATE_CODE)) ||
+            !permissionHelper.permissionAlreadyGranted(permissionCodesMap.get(CAMERA_CODE))
+        ) {
+            Log.i(Constants.LOG_TAG, "Requesting permissions");
+            ArrayList<String> permissions = new ArrayList<String>();
+            permissions.add(permissionCodesMap.get(READ_PHONE_STATE_CODE));
+            permissions.add(permissionCodesMap.get(CAMERA_CODE));
+
+            if (Build.VERSION.SDK_INT > 26) {
+                permissions.add(permissionCodesMap.get(READ_PHONE_NUMBERS_CODE));
+            }
+
+            permissionHelper.requestPermission(permissions.toArray(new String[0]), CAMERA_CODE);
+        }
     }
 
     /**
@@ -97,17 +146,13 @@ public class MainActivity extends AppCompatActivity {
         setButtonHandlers();
         appConfigured = true;
         ServiceScheduler.schedule();
-
-        if (!permissionHelper.permissionAlreadyGranted(Manifest.permission.READ_PHONE_STATE)) {
-            Log.i(Constants.LOG_TAG, "Requesting Read Phone State Permission");
-            permissionHelper.requestPermission(Manifest.permission.READ_PHONE_STATE, REQUEST_READ_PHONE_STATE_CODE);
-        }
     }
 
     protected void setConfigActivity() {
         Log.i(Constants.LOG_TAG, "The app is not configured yet");
         setContentView(R.layout.activity_config);
         findViewById(R.id.qrScanBtn).setOnClickListener((View v) -> goToQrScanner());
+        checkPermissions();
     }
 
     protected void setBindingModel() {
@@ -197,47 +242,10 @@ public class MainActivity extends AppCompatActivity {
 
     protected void goToQrScanner() {
 
-        if (!permissionHelper.permissionAlreadyGranted(Manifest.permission.CAMERA)) {
-            Log.i(Constants.LOG_TAG, "Requesting Camera Permission");
-            permissionHelper.requestPermission(Manifest.permission.CAMERA, CAMERA_CODE);
-        } else {
+        if (permissionHelper.permissionAlreadyGranted(permissionCodesMap.get(CAMERA_CODE))) {
             Intent intent = new Intent(this, QrScannerActivity.class);
             startActivity(intent);
         }
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.M)
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-
-        switch (requestCode) {
-            case CAMERA_CODE:
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Log.i(Constants.LOG_TAG, "Camera Permission Granted");
-                    goToQrScanner();
-                } else {
-                    boolean showRationale = shouldShowRequestPermissionRationale(Manifest.permission.CAMERA);
-                    Log.d(Constants.LOG_TAG, "Should open settings dialog: " + !showRationale);
-                    if (!showRationale) {
-                        permissionHelper.openSettingsDialog();
-                    }
-                }
-                break;
-
-            case REQUEST_READ_PHONE_STATE_CODE:
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Log.i(Constants.LOG_TAG, "PHONE STATE Permission Granted");
-                } else {
-                    boolean showRationale = shouldShowRequestPermissionRationale(Manifest.permission.READ_PHONE_STATE);
-                    Log.d(Constants.LOG_TAG, "Should open settings dialog: " + !showRationale);
-                    if (!showRationale) {
-                        permissionHelper.openSettingsDialog();
-                    }
-                }
-                break;
-
-        }
-
     }
 
     /**

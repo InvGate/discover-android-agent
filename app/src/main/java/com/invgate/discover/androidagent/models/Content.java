@@ -87,6 +87,15 @@ public class Content {
     private String imei;
 
     /**
+     *
+     * (Required)
+     *
+     */
+    @SerializedName("lineNumber")
+    @Expose
+    private String lineNumber;
+
+    /**
      * 
      * (Required)
      * 
@@ -258,5 +267,21 @@ public class Content {
      *
      */
     public void setImei(String imei) { this.imei = imei; }
+
+    /**
+     *
+     * (Required)
+     *
+     */
+    public String getLineNumber() {
+        return lineNumber;
+    }
+
+    /**
+     *
+     * (Required)
+     *
+     */
+    public void setLineNumber(String lineNumber) { this.lineNumber = lineNumber; }
 
 }
