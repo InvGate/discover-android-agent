@@ -130,7 +130,9 @@ public class Inventory {
         content.setSoftwares(createSoftwares(json.getJSONArray("softwares")));
         content.setVideos(createVideos(json.getJSONArray("videos")));
         content.setCarrier(json.getString("carrier"));
-        content.setLineNumber(json.getString("lineNumber"));
+        if (json.has("lineNumber")) {
+            content.setLineNumber(json.getString("lineNumber"));
+        }
 
         return content;
     }
